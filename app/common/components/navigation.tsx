@@ -17,6 +17,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -24,9 +25,34 @@ import {
 } from "~/common/components/ui/dropdown-menu";
 
 import { Separator } from "~/common/components/ui/separator"; // 수직 구분선
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/utils"; // 클래스명을 조건부로 합치는 유틸 함수 (className 헬퍼)
+import { Button } from "./ui/button"; // 공통 버튼 컴포넌트 (asChild로 Link와 결합 가능)
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"; // 사용자 프로필 이미지를 표시하는 컴포넌트
+import {
+  BarChart3Icon,
+  BellIcon,
+  LogOutIcon,
+  LucideSettings2,
+  MessageCircleIcon,
+  Settings2Icon,
+  SettingsIcon,
+  UserPenIcon,
+} from "lucide-react"; // 아이콘 모음 (알림, 메시지, 설정 등)
 
-export default function Navigation() {
+export default function Navigation({ 
+  /*
+    isLoggedIn: 로그인 상태 여부에 따라 우측 영역에 로그인/회원가입 또는 프로필 드롭다운을 표시
+    hasNotifications: 읽지 않은 알림이 있으면 알림 아이콘에 빨간 점 뱃지를 표시
+    hasMessages: 읽지 않은 메시지가 있으면 메시지 아이콘에 빨간 점 뱃지를 표시
+  */
+  isLoggedIn,
+  hasNotifications,
+  hasMessages,
+ }: { 
+  isLoggedIn: boolean;
+  hasNotifications: boolean;
+  hasMessages: boolean;
+}) {
   // 네비게이션 메뉴에 표시할 항목들을 정의한 배열
   // 각 항목은 이름(name), 경로(to), 하위 항목(items)을 가질 수 있음
   const menus: {
@@ -59,7 +85,7 @@ export default function Navigation() {
           description: "Submit a new product !",
         },
         {
-          name: "Promte a Product",
+          name: "Promote a Product",
           to: "/products/promote",
           description: "Promote your product to reach more users",
         },
@@ -76,7 +102,7 @@ export default function Navigation() {
         },
         {
           name: "Full-Time Jobs",
-          to: "/jobs?type=fulltime",
+          to: "/jobs?type=full-time",
           description: "Browse full-time job opportunities",
         },
         {
@@ -106,7 +132,7 @@ export default function Navigation() {
           description: "Browse all community posts",
         },
         {
-          name: "Tops Posts",
+          name: "Top Posts",
           to: "/community?sort=top",
           description: "Browse top community posts",
         },
@@ -205,7 +231,7 @@ export default function Navigation() {
               ) : (
                 // 하위 메뉴가 없는 경우: 일반 링크로 렌더링
                 <NavigationMenuItem key={menu.name}>
-                  <Link to={menu.to} className={navigationMenuTriggerStyle()}>
+                  <Link to={menu.to} className={navigationMenuTriggerStyle()}> {/* 트리거와 동일한 스타일을 링크에 적용하는 헬퍼 */}
                     {menu.name}
                   </Link>
                 </NavigationMenuItem>
@@ -214,6 +240,82 @@ export default function Navigation() {
           </NavigationMenuList>
         </NavigationMenu>
       </div>
+      {isLoggedIn ? ( // 로그인 상태: 알림/메시지/프로필 메뉴 표시
+        <div className="flex items-center gap-2">
+          {/* 알림 버튼 - 읽지 않은 알림이 있으면 빨간 점 표시 */}
+          <Button size="icon" variant="ghost" asChild className="relative">
+            <Link to="/my/notifications">
+              <BellIcon className="size-4" />
+              {/* 알림 뱃지(빨간 점) - 절대 위치로 아이콘 우상단에 표시 */}
+              {hasNotifications && (
+                <div className="absolute top-1.5 right-1.5 size-2 bg-red-500 rounded-full" />
+              )}
+            </Link>
+          </Button>
+          {/* 메시지 버튼 - 읽지 않은 메시지에 뱃지 표시 */}
+          <Button size="icon" variant="ghost" asChild className="relative">
+            <Link to="/my/messages">
+            <MessageCircleIcon className="size-4" />
+              {/* 메시지 뱃지(빨간 점) */}
+              {hasMessages && (
+                <div className="absolute top-1.5 right-1.5 size-2 bg-red-500 rounded-full" />
+              )}
+            </Link>
+          </Button>
+          {/* 프로필 드롭다운 - 아바타 클릭 시 열림 */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild> {/* asChild: Trigger 자체 대신 자식(Avatar)을 트리거로 사용 */}
+              <Avatar> {/* 프로필 이미지/이니셜 표시 */}
+                <AvatarImage src="https://github.com/sorrynthx.png" /> {/* 프로필 이미지 URL */}
+                <AvatarFallback>S</AvatarFallback> {/* 이미지가 없을 때 표시할 이니셜 */}
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56"> {/* 드롭다운 내부 컨텐츠 래퍼 */}
+              <DropdownMenuLabel className="flex flex-col"> {/* 사용자 이름/핸들 영역 */}
+                <span className="font-medium">Sorrynthx</span>
+                <span className="text-xs text-muted-foreground">@ㄲㄱ</span>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem asChild className="cursor-pointer"> {/* 대시보드로 이동 */}
+                  <Link to="/my/dashboard">
+                    <BarChart3Icon className="size-4 mr-2" />
+                    Dashboard
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer"> {/* 프로필 편집으로 이동 */}
+                  <Link to="/my/profile">
+                    <UserPenIcon className="size-4 mr-2" />
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer"> {/* 설정 페이지로 이동 */}
+                  <Link to="/my/settings">
+                    <SettingsIcon className="size-4 mr-2" />
+                    Settings
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild className="cursor-pointer"> {/* 로그아웃 */}
+                  <Link to="/auth/logout">
+                    <LogOutIcon className="size-4 mr-2" />
+                    Logout
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      ) : ( // 비로그인 상태: 로그인/회원가입 버튼 표시
+        <div className="flex items-center gap-4">
+          <Button asChild variant="secondary"> {/* Link를 버튼처럼 보이도록 렌더링(asChild) */}
+            <Link to="/auth/login">Login</Link>
+          </Button>
+          <Button asChild> {/* 회원가입 버튼 */}
+            <Link to="/auth/join">Join</Link>
+          </Button>
+        </div>
+      )}
     </nav>
   );
 }
