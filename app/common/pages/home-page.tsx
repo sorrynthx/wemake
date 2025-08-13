@@ -13,7 +13,7 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export default function Home() {
+export default function HomePage() {
   return (
     <div className="px-20 space-y-40">
       {/* Products */}

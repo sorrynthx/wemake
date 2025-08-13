@@ -1,6 +1,45 @@
-import { type RouteConfig, index, route } from "@react-router/dev/routes";
 
+/*
+ * index: 해당 경로의 기본 페이지를 설정
+ * prefix: 특정 경로 접두어(prefix)와 그 하위 라우트를 그룹으로 정의
+ * route: 개별 경로와 해당 페이지 컴포넌트를 매핑
+ */
+import { type RouteConfig, index, prefix, route } from "@react-router/dev/routes";
+
+// 라우트 설정 파일 - 각 경로와 해당 페이지 컴포넌트를 정의
 export default [
-    index("routes/home.tsx"),
-    
+    // 메인 홈 페이지
+    index("common/pages/home-page.tsx"),
+    // 상품 관련 페이지 라우트
+    ...prefix("products", [
+        // 상품 리스트 페이지
+        index("features/products/pages/products-page.tsx"),
+        // 상품 리더보드 관련 페이지 라우트
+        ...prefix("leaderboards", [
+            // 전체 리더보드 기본 페이지
+            index("features/products/pages/leaderboard-page.tsx"),
+            // 연도별 리더보드 페이지
+            route("/yearly/:year", "features/products/pages/yearly-leaderboard-page.tsx"),
+            // 월별 리더보드 페이지
+            route("/monthly/:year/:month", "features/products/pages/monthly-leaderboard-page.tsx"),
+            // 일별 리더보드 페이지
+            route("/daily/:year/:month/:day", "features/products/pages/daily-leaderboard-page.tsx"),
+            // 주간 리더보드 페이지
+            route("/weekly/:year/:week", "features/products/pages/weekly-leaderboard-page.tsx"),
+        ]),
+        // 상품 카테고리 관련 페이지 라우트
+        ...prefix("categories", [
+            // 전체 카테고리 페이지
+            index("features/products/pages/categories-page.tsx"),
+            // 특정 카테고리 상세 페이지
+            route("/:category", "features/products/pages/category-page.tsx"),
+        ]),
+        // 상품 검색 페이지
+        route("/search", "features/products/pages/search-page.tsx"),
+        // 상품 제출 페이지
+        route("/submit", "features/products/pages/submit-page.tsx"),
+        // 상품 홍보 페이지
+        route("/promote", "features/products/pages/promote-page.tsx"),
+
+    ]),
 ] satisfies RouteConfig;
