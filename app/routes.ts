@@ -26,6 +26,8 @@ export default [
             route("/daily/:year/:month/:day", "features/products/pages/daily-leaderboard-page.tsx"),
             // 주간 리더보드 페이지
             route("/weekly/:year/:week", "features/products/pages/weekly-leaderboard-page.tsx"),
+            // 리더보드 리다이렉트 페이지
+            route("/:period", "features/products/pages/leaderboards-redirection-page.tsx"),
         ]),
         // 상품 카테고리 관련 페이지 라우트
         ...prefix("categories", [
