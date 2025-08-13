@@ -1,5 +1,6 @@
 // 이 컴포넌트는 커뮤니티 게시글 카드를 렌더링하는 역할을 합니다.
 
+import { DotIcon } from "lucide-react";
 import { Link } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "~/common/components/ui/avatar";
 import { Button } from "~/common/components/ui/button";
@@ -41,7 +42,7 @@ export function PostCard({ postId, title, author, authorAvatarUrl, category, tim
             <div className="flex gap-2 text-sm leading-tight text-muted-foreground">
               <span>{author} on</span>
               <span>{category}</span>
-              <span>・</span>
+              <DotIcon className="w-4 h-4" />
               <span>{timeAgo}</span>
             </div>
           </div>
@@ -49,9 +50,7 @@ export function PostCard({ postId, title, author, authorAvatarUrl, category, tim
         {/* 카드 하단 영역으로, 답글 버튼이 포함되어 있습니다. */}
         <CardFooter className="flex justify-end">
           {/* 답글 버튼이며, 클릭 시 동일한 게시글 상세 페이지로 이동합니다. */}
-          <Button variant="link" asChild>
-            <Link to={`/community/${postId}`}>Reply &rarr;</Link>
-          </Button>
+          <Button variant="link">Reply &rarr;</Button>
         </CardFooter>
       </Card>
     </Link>
