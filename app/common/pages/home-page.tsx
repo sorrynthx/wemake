@@ -5,6 +5,7 @@ import { PostCard } from "~/features/community/components/post-card";
 import { IdeaCard } from "~/features/ideas/components/idea-card";
 import { JobCard } from "~/features/jobs/components/job-card";
 import { TeamCard } from "~/features/teams/components/team-card";
+import type { Route } from "./+types/home-page";
 
 export const meta: MetaFunction = () => {
   return [
@@ -13,7 +14,19 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export default function HomePage() {
+/*
+ * loader 함수:
+ * - 페이지가 렌더링되기 전에 서버 또는 클라이언트에서 필요한 데이터를 불러오는 함수
+ * - 반환한 데이터는 해당 페이지 컴포넌트의 props로 전달되어 사용됨
+ */
+export const loader = () => {
+  console.log('Hello! ');
+  return {
+    hello: "world"
+  };
+}
+
+export default function HomePage({ loaderData }: Route.ComponentProps) {
   return (
     <div className="px-20 space-y-40">
       {/* Products */}
