@@ -175,32 +175,34 @@ export default function Navigation({
                 {menu.items?.length ? (
                   // 하위 메뉴가 있는 경우: Trigger로 드롭다운 열기 (절대 Link로 감싸지 않음)
                   <>
-                    <NavigationMenuTrigger>{menu.name}</NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      {/* 드롭다운 컨텐츠: 2열 그리드로 아이템 배치 */}
-                      <ul className="grid w-[600px] font-light gap-3 p-4 grid-cols-2">
-                        {menu.items.map((item) => (
-                          <li
-                            key={item.name}
-                            className={cn([
-                              "select-none rounded-md transition-colors focus:bg-accent hover:bg-accent",
-                              (item.to === "/products/promote" || item.to === "/jobs/submit") &&
-                                "col-span-2 bg-primary/10 hover:bg-primary/20 focus:bg-primary/20",
-                            ])}
-                          >
-                            {/* 링크를 실제 인터랙티브 요소로 사용 (asChild로 단일 자식 보장) */}
-                            <NavigationMenuLink asChild>
-                              <Link className="p-3 space-y-1 block leading-none no-underline outline-none" to={item.to}>
-                                {/* 메뉴 이름 */}
-                                <span className="text-sm font-medium leading-none">{item.name}</span>
-                                {/* 메뉴 설명 */}
-                                <p className="text-sm leading-snug text-muted-foreground">{item.description}</p>
-                              </Link>
-                            </NavigationMenuLink>
-                          </li>
-                        ))}
-                      </ul>
-                    </NavigationMenuContent>
+                    <Link to={menu.to}>
+                      <NavigationMenuTrigger>{menu.name}</NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        {/* 드롭다운 컨텐츠: 2열 그리드로 아이템 배치 */}
+                        <ul className="grid w-[600px] font-light gap-3 p-4 grid-cols-2">
+                          {menu.items.map((item) => (
+                            <li
+                              key={item.name}
+                              className={cn([
+                                "select-none rounded-md transition-colors focus:bg-accent hover:bg-accent",
+                                (item.to === "/products/promote" || item.to === "/jobs/submit") &&
+                                  "col-span-2 bg-primary/10 hover:bg-primary/20 focus:bg-primary/20",
+                              ])}
+                            >
+                              {/* 링크를 실제 인터랙티브 요소로 사용 (asChild로 단일 자식 보장) */}
+                              <NavigationMenuLink asChild>
+                                <Link className="p-3 space-y-1 block leading-none no-underline outline-none" to={item.to}>
+                                  {/* 메뉴 이름 */}
+                                  <span className="text-sm font-medium leading-none">{item.name}</span>
+                                  {/* 메뉴 설명 */}
+                                  <p className="text-sm leading-snug text-muted-foreground">{item.description}</p>
+                                </Link>
+                              </NavigationMenuLink>
+                            </li>
+                          ))}
+                        </ul>
+                      </NavigationMenuContent>
+                    </Link>
                   </>
                 ) : (
                   // 하위 메뉴가 없는 경우: 트리거 스타일을 적용한 일반 링크
