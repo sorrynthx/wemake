@@ -7,6 +7,19 @@ import { ProductCard } from "../components/product-card";
 import { Button } from "~/common/components/ui/button";
 import ProductPagination from "~/common/components/product-pagination";
 
+export const meta: Route.MetaFunction = ({ params }) => {
+  const date = DateTime.fromObject({
+    year: Number(params.year),
+    month: Number(params.month),
+    day: Number(params.day)
+  })
+  .setZone("Asia/Seoul")
+  .setLocale("ko");
+  return [
+    {"title": `The best of ${date.toLocaleString(DateTime.DATE_MED)} | wemake` }
+  ]
+}
+
 // URL 파라미터로 전달된 year, month, day를 숫자로 강제 변환하고 유효성을 검사하기 위한 스키마 정의
 const paramsSchema = z.object({
   year: z.coerce.number(),  // year를 숫자로 변환
@@ -86,7 +99,7 @@ export default function DailyLeaderboardPage({ loaderData }: Route.ComponentProp
       
       {/* Hero section */}
       <HeroSection 
-        title={`The best products of ${urlDate.toLocaleString(DateTime.DATE_MED)}`}
+        title={`The best of ${urlDate.toLocaleString(DateTime.DATE_MED)}`}
       />
       
       {/* Next, Previous Button */}
