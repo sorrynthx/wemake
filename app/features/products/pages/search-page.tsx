@@ -1,166 +1,114 @@
-import type { Route } from "../../../+types/products/search";
+import z from "zod"; // 데이터 검증을 위한 스키마 라이브러리
+import type { Route } from "./+types/search-page";
+import { data, Form } from "react-router";
+import { HeroSection } from "~/common/components/hero-section";
+import { ProductCard } from "../components/product-card";
+import ProductPagination from "~/common/components/product-pagination";
+import { Input } from "~/common/components/ui/input";
+import { Button } from "~/common/components/ui/button";
 
+// 메타 데이터 함수: 페이지의 제목과 설명을 설정
+export const meta: Route.MetaFunction = () => {
+  return [
+    { title: "Search Products | wemake" },
+    { name: "description", content: "Search for products" },
+  ]
+}
+
+// URL 검색 파라미터를 검증하기 위한 스키마 정의
+// Zod 라이브러리를 사용하여 타입 안전성과 런타임 검증을 보장
+const paramsSchema = z.object({
+  // query: 검색어 (문자열, 선택사항, 기본값은 빈 문자열)
+  query: z.string().optional().default(""),
+  // page: 페이지 번호 (숫자로 변환, 선택사항, 기본값은 1)
+  // z.coerce.number()는 문자열을 자동으로 숫자로 변환해줌
+  page: z.coerce.number().optional().default(1),
+});
+
+// 로더 함수: 페이지 로드 시 서버에서 데이터를 가져오는 함수
 export function loader({ request }: Route.LoaderArgs) {
+  // URL 객체를 생성하여 검색 파라미터에 접근
   const url = new URL(request.url);
-  const query = url.searchParams.get("q") || "";
   
-  // Mock search results - in real app this would come from API
-  const searchResults = query ? [
-    {
-      id: 1,
-      name: "Product One",
-      description: "A fantastic tool for boosting productivity",
-      category: "Productivity",
-      rating: 4.5,
-      votes: 128
-    },
-    {
-      id: 2,
-      name: "Product Two",
-      description: "Another great tool in this category",
-      category: "Design",
-      rating: 4.2,
-      votes: 95
-    }
-  ] : [];
+  // URL의 검색 파라미터(searchParams)를 객체로 변환하고 스키마로 검증
+  // Object.fromEntries(url.searchParams)는 URLSearchParams를 일반 객체로 변환
+  // 예: ?query=react&page=2 → { query: "react", page: "2" }
+  const { success, data: parsedData } = paramsSchema.safeParse(Object.fromEntries(url.searchParams));
   
+  // 검증 실패 시 에러를 던짐
+  // safeParse는 { success: boolean, data: parsedData | ZodError } 형태를 반환
+  if (!success) { 
+    throw data({ error_code: "invalid_params" }, { status: 400 }) 
+  }
+  
+  // TODO: 여기에 실제 검색 로직 구현 필요
+  // 예: 데이터베이스에서 검색어와 페이지에 맞는 제품들을 가져오기
   return {
-    query,
-    results: searchResults,
-    totalResults: searchResults.length,
-    suggestions: ["productivity", "design", "development", "marketing"]
+    query: parsedData.query,
+    page: parsedData.page,
+    results: [], // 검색 결과 배열 (현재는 빈 배열)
+    totalResults: 0, // 전체 검색 결과 수
+    totalPages: 0 // 전체 페이지 수
   };
 }
 
-export function action({ request }: Route.ActionArgs) {
-  return {};
-}
-
-export function meta(): Route.MetaFunction {
-  return [
-    { title: "Search Products - WeMake" },
-    { name: "description", content: "Search for amazing products and tools" }
-  ];
-}
-
+// 메인 컴포넌트: 검색 페이지를 렌더링
 export default function SearchPage({ loaderData }: Route.ComponentProps) {
-  const { query, results, totalResults, suggestions } = loaderData;
+  // loaderData에서 검색 관련 데이터를 가져옴
+  const { query, page, results, totalResults, totalPages } = loaderData || {};
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Search Products</h1>
-        <p className="text-lg text-gray-600">
-          Find the perfect tool for your needs
-        </p>
-      </div>
+    <div className="space-y-10">
+      {/* 히어로 섹션: 페이지 제목과 부제목 */}
+      <HeroSection 
+        title="Search"
+        subtitle="Search for Products! by title or description"
+      />
+      
+      {/* 검색 입력 폼: 사용자가 검색어를 입력하고 검색을 실행 */}
+      <Form className="flex justify-center max-w-screen-sm items-center gap-2 mx-auto">
+        <Input 
+          name="query" 
+          placeholder="Search for products" 
+          className="text-lg" 
+          defaultValue={query} // 이전 검색어가 있으면 기본값으로 설정
+        />
+        <Button type="submit">Search</Button>
+      </Form>
 
-      <div className="max-w-2xl mx-auto mb-8">
-        <form method="get" className="relative">
-          <input
-            type="text"
-            name="q"
-            defaultValue={query}
-            placeholder="Search for products, tools, or categories..."
-            className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-          <button
-            type="submit"
-            className="absolute inset-y-0 right-0 px-4 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 transition-colors"
-          >
-            Search
-          </button>
-        </form>
-      </div>
-
+      {/* 검색 결과가 있을 때만 결과 개수 표시 */}
       {query && (
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold text-gray-900">
-              Search Results for "{query}"
-            </h2>
-            <span className="text-gray-600">{totalResults} results found</span>
-          </div>
+        <div className="text-center text-gray-600">
+          "{query}"에 대한 검색 결과: {totalResults}개
         </div>
       )}
 
-      {!query && (
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Popular Searches</h2>
-          <div className="flex flex-wrap gap-2">
-            {suggestions.map((suggestion) => (
-              <a
-                key={suggestion}
-                href={`/products/search?q=${encodeURIComponent(suggestion)}`}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-full transition-colors"
-              >
-                {suggestion}
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* 제품 카드 목록: 검색 결과 또는 기본 제품 목록을 표시 */}
+      <div className="space-y-10 w-full max-w-screen-md mx-auto">
+        {/* 
+          현재는 샘플 데이터를 표시
+          실제로는 loader에서 가져온 results 배열을 사용해야 함
+        */}
+        {
+          Array.from({ length: 10 }, (_, index) => (
+            <ProductCard
+              key={index}
+              productId={`product-${index + 1}`}
+              name={`Product ${index + 1}`}
+              description={`This is a sample description for product ${index + 1}`}
+              commentCount={Math.floor(Math.random() * 50) + 5}
+              viewCount={Math.floor(Math.random() * 200) + 20}
+              upvoteCount={Math.floor(Math.random() * 300) + 50}
+            />
+            ))
+        }
+      </div>
 
-      {query && results.length > 0 && (
-        <div className="space-y-4">
-          {results.map((result) => (
-            <div key={result.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-blue-600 uppercase tracking-wide">
-                  {result.category}
-                </span>
-                <div className="flex items-center">
-                  <span className="text-yellow-400">★</span>
-                  <span className="ml-1 text-sm text-gray-600">{result.rating}</span>
-                  <span className="ml-1 text-xs text-gray-500">({result.votes})</span>
-                </div>
-              </div>
-              
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">{result.name}</h3>
-              <p className="text-gray-600 mb-4">{result.description}</p>
-              
-              <div className="flex justify-between items-center">
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
-                  View Details
-                </button>
-                <button className="text-gray-400 hover:text-gray-600">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* 페이지네이션: 검색 결과가 많을 때 페이지를 나누어 표시 */}
+      <ProductPagination 
+        totalPages={totalPages || 10}
+      />
 
-      {query && results.length === 0 && (
-        <div className="text-center py-12">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No results found</h3>
-          <p className="text-gray-600 mb-6">
-            We couldn't find any products matching "{query}". Try different keywords or browse our categories.
-          </p>
-          <div className="flex space-x-4 justify-center">
-            <a
-              href="/products/categories"
-              className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors"
-            >
-              Browse Categories
-            </a>
-            <a
-              href="/products"
-              className="bg-gray-600 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition-colors"
-            >
-              View All Products
-            </a>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
