@@ -34,7 +34,7 @@ export function ProductCard({
 }: ProductCardProps) {
   return (
     // 상품 상세 페이지로 이동하는 링크
-    <Link to={`/products/${productId}`}>
+    <Link to={`/products/${productId}`} className="block">
       {/* 카드 전체 레이아웃 */}
       <Card className="w-full flex items-center justify-between bg-transparent hover:bg-card/50">
         {/* 카드 헤더: 상품명, 설명, 댓글/조회수 표시 */}

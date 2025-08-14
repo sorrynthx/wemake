@@ -1,7 +1,11 @@
 import { DateTime } from "luxon"; // 날짜 관련 라이브러리
 import type { Route } from "./+types/daily-leaderboard-page";
-import { data, isRouteErrorResponse } from "react-router";
+import { data, isRouteErrorResponse, Link } from "react-router";
 import { z } from 'zod'; // 파라미터 유효성 체크 라이브러리
+import { HeroSection } from "~/common/components/hero-section";
+import { ProductCard } from "../components/product-card";
+import { Button } from "~/common/components/ui/button";
+import ProductPagination from "~/common/components/product-pagination";
 
 // URL 파라미터로 전달된 year, month, day를 숫자로 강제 변환하고 유효성을 검사하기 위한 스키마 정의
 const paramsSchema = z.object({
@@ -65,20 +69,66 @@ export const loader = ({ params }: Route.LoaderArgs) => {
 
   // loader 함수의 반환값: 유효한 날짜 객체를 포함하는 객체 반환
   return {
-    date
+    ...parsedData
   }
 }
 
 // React 컴포넌트: loader에서 전달받은 데이터를 props로 받아 화면에 렌더링
 export default function DailyLeaderboardPage({ loaderData }: Route.ComponentProps) {
   
+  const urlDate = DateTime.fromObject(loaderData);
+  const previousDay = urlDate.minus({ day: 1 });
+  const nextDay = urlDate.plus({ day: 1 });
+  const isToday = urlDate.equals(DateTime.now().startOf("day"));
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1>Daily Leaderboards page</h1>
-        {/* loaderData를 JSON 문자열로 변환해 화면에 출력 */}
-        <p>{JSON.stringify(loaderData)}</p>
+    <div className="space-y-10">
+      
+      {/* Hero section */}
+      <HeroSection 
+        title={`The best products of ${urlDate.toLocaleString(DateTime.DATE_MED)}`}
+      />
+      
+      {/* Next, Previous Button */}
+      <div className="flex imtes-center justify-center gap-2">
+        <Button variant="secondary" asChild>
+          <Link to={`/products/leaderboards/daily/${previousDay.year}/${previousDay.month}/${previousDay.day}`}>
+            &larr; {previousDay.toLocaleString(DateTime.DATE_MED)}
+          </Link>
+        </Button>
+        {
+          !isToday ? (
+          <Button variant="secondary" asChild>
+            <Link to={`/products/leaderboards/daily/${nextDay.year}/${nextDay.month}/${nextDay.day}`}>
+            {nextDay.toLocaleString(DateTime.DATE_MED)} &rarr;
+          </Link>
+          </Button>
+          ) : null
+        }
       </div>
+      
+      {/* Products Card */}
+      <div className="space-y-10 w-full max-w-screen-md mx-auto">
+        {
+          Array.from({ length: 10 }, (_, index) => (
+            <ProductCard
+              key={index}
+              productId={`product-${index + 1}`}
+              name={`Product ${index + 1}`}
+              description={`This is a sample description for product ${index + 1}`}
+              commentCount={Math.floor(Math.random() * 50) + 5}
+              viewCount={Math.floor(Math.random() * 200) + 20}
+              upvoteCount={Math.floor(Math.random() * 300) + 50}
+            />
+            ))
+        }
+      </div>
+
+      {/* 페이징 */}
+      <ProductPagination 
+        totalPages={10}
+      />
+
     </div>
   );
 }
