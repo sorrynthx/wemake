@@ -137,7 +137,7 @@ export default function DailyLeaderboardPage({ loaderData }: Route.ComponentProp
         }
       </div>
 
-      {/* 페이징 */}
+      {/* 페이지네이션 */}
       <ProductPagination 
         totalPages={10}
       />
