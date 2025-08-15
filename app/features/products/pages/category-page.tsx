@@ -1,6 +1,5 @@
 import { HeroSection } from "~/common/components/hero-section";
 import type { Route } from "./+types/category-page";
-import { CategoryCard } from "../components/category-card";
 import ProductPagination from "~/common/components/product-pagination";
 import { ProductCard } from "../components/product-card";
 
