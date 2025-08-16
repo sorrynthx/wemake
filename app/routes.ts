@@ -4,7 +4,7 @@
  * prefix: 특정 경로 접두어(prefix)와 그 하위 라우트를 그룹으로 정의
  * route: 개별 경로와 해당 페이지 컴포넌트를 매핑
  */
-import { type RouteConfig, index, prefix, route } from "@react-router/dev/routes";
+import { type RouteConfig, index, layout, prefix, route } from "@react-router/dev/routes";
 
 // 라우트 설정 파일 - 각 경로와 해당 페이지 컴포넌트를 정의
 export default [
@@ -42,6 +42,16 @@ export default [
         route("/submit", "features/products/pages/submit-page.tsx"),
         // 상품 홍보 페이지
         route("/promote", "features/products/pages/promote-page.tsx"),
+        ...prefix("/:productId", [
+            layout("features/products/layouts/product-overview-layout.tsx", [
+                index("features/products/pages/product-redirect-page.tsx"),
+                route("/overview", "features/products/pages/product-overview-page.tsx"),
+                ...prefix("/reviews", [
+                    index("features/products/pages/product-reviews-page.tsx"),
+                    route("/new", "features/products/pages/new-product-review-page.tsx")
+                ])
+            ]),
+        ]),
 
     ]),
 ] satisfies RouteConfig;
