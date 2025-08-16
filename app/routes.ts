@@ -8,9 +8,9 @@ import { type RouteConfig, index, layout, prefix, route } from "@react-router/de
 
 // 라우트 설정 파일 - 각 경로와 해당 페이지 컴포넌트를 정의
 export default [
-    // 메인 홈 페이지
+    // 1.메인 홈 페이지
     index("common/pages/home-page.tsx"),
-    // 상품 관련 페이지 라우트
+    // 2.상품 관련 페이지 라우트
     ...prefix("products", [
         // 상품 리스트 페이지
         index("features/products/pages/products-page.tsx"),
@@ -42,6 +42,7 @@ export default [
         route("/submit", "features/products/pages/submit-page.tsx"),
         // 상품 홍보 페이지
         route("/promote", "features/products/pages/promote-page.tsx"),
+        // 상품 상세 페이지 (레이아웃 적용)
         ...prefix("/:productId", [
             layout("features/products/layouts/product-overview-layout.tsx", [
                 index("features/products/pages/product-redirect-page.tsx"),
@@ -53,4 +54,9 @@ export default [
         ]),
 
     ]),
+    // 3.GPTIdae
+    ...prefix("/ideas", [
+        index("features/ideas/pages/ideas-page.tsx"),
+        route("/:ideaId", "features/ideas/pages/idea-page.tsx"),
+    ])
 ] satisfies RouteConfig;
