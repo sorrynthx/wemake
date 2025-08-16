@@ -37,7 +37,7 @@ export default function ProductOverviewLayout({ params }: Route.ComponentProps) 
                         <div className="mt-5 flex items-center gap-2">
                             <div className="flex text-yellow-400">
                                 {Array.from({ length: 5 }).map((_, index) => (
-                                    <StarIcon className="size-4" fill="currentColor" />
+                                    <StarIcon className="size-4" fill="currentColor" key={index} />
                                 ))}
                             </div>
                             {/* 리뷰 개수 */}

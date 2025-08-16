@@ -1,6 +1,8 @@
 import { Button } from "~/common/components/ui/button";
 import type { Route } from "./+types/product-reviews-page";
 import { ReviewCard } from "../components/review-card";
+import { Dialog, DialogTrigger } from "~/common/components/ui/dialog";
+import CreateReviewDialog from "~/common/components/create-review-dialog";
 
 export const meta: Route.MetaFunction = () => {
   return [
@@ -11,7 +13,7 @@ export const meta: Route.MetaFunction = () => {
 
 export default function ProductReviewsPage({ params }: Route.ComponentProps) {
   const { productId } = params;
-  
+
   // Sample review data - in a real app, this would come from props or API
   const sampleReviews = [
     {
@@ -70,20 +72,25 @@ export default function ProductReviewsPage({ params }: Route.ComponentProps) {
       createdAt: "1 month ago"
     }
   ];
-  
-  return (
-    <div className="space-y-10 max-w-xl">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">5 Reviews</h2>
-        <Button variant={"secondary"}>Write a Review</Button>
-      </div>
 
-      {/* 리뷰 */}
-      <div className="space-y-20">
-        {sampleReviews.map((review, index) => (
-          <ReviewCard key={index} {...review} />
-        ))}
+  return (
+    <Dialog>
+      <div className="space-y-10 max-w-xl">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold">5 Reviews</h2>
+          <DialogTrigger>
+            <Button variant={"secondary"}>Write a Review</Button>
+          </DialogTrigger>
+        </div>
+
+        {/* 리뷰 */}
+        <div className="space-y-20">
+          {sampleReviews.map((review, index) => (
+            <ReviewCard key={index} {...review} />
+          ))}
+        </div>
       </div>
-    </div>
+      <CreateReviewDialog />
+    </Dialog>
   );
 }
