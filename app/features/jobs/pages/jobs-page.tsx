@@ -65,7 +65,7 @@ export default function JobsPage() {
         </div>
 
         {/* 필터 사이드바 - 2칸 차지 */}
-        <div className="col-span-2 flex flex-col gap-10">
+        <div className="col-span-2 sticky top-20 flex flex-col gap-10">
           
           {/* 직업 타입 필터 */}
           <div className="flex flex-col items-start gap-2.5">
