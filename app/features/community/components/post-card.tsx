@@ -1,12 +1,13 @@
-// 이 컴포넌트는 커뮤니티 게시글 카드를 렌더링하는 역할을 합니다.
+// 커뮤니티 게시글의 제목, 작성자, 카테고리, 시간, 투표수 등을 보여주는 카드 UI 컴포넌트
 
-import { DotIcon } from "lucide-react";
+import { ChevronUpIcon, DotIcon } from "lucide-react";
 import { Link } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "~/common/components/ui/avatar";
 import { Button } from "~/common/components/ui/button";
 import { Card, CardHeader, CardTitle, CardFooter } from "~/common/components/ui/card";
+import { cn } from "~/lib/utils";
 
-// PostCard 컴포넌트가 필요로 하는 props의 타입을 정의합니다.
+// PostCard 컴포넌트에 전달되는 게시글 데이터의 타입 정의
 interface PostCardProps {
   postId: string;
   title: string;
@@ -14,21 +15,26 @@ interface PostCardProps {
   authorAvatarUrl?: string;
   category: string;
   timeAgo: string;
+  expanded?: boolean;
+  votesCount?: number;
 }
 
-// 게시글 정보를 받아서 커뮤니티 게시글 카드를 렌더링하는 함수형 컴포넌트입니다.
-export function PostCard({ postId, title, author, authorAvatarUrl, category, timeAgo }: PostCardProps) {
-  // 작성자 이름에서 각 단어의 첫 글자를 뽑아 이니셜을 생성합니다.
+// 게시글 데이터를 받아 카드 형태로 화면에 렌더링하는 컴포넌트
+export function PostCard({ postId, title, author, authorAvatarUrl, category, timeAgo, expanded = false, votesCount = 0, }: PostCardProps) {
+  // 작성자 이름의 각 단어 첫 글자를 추출해 대문자로 변환한 이니셜 생성
   const initials = author.split(' ').map(word => word[0]).join('').toUpperCase();
-  
+
   return (
-    // 게시글 상세 페이지로 이동할 수 있도록 카드 전체를 Link 컴포넌트로 감쌉니다.
-    <Link to={`/community/${postId}`}>
-      {/* 게시글 카드의 기본 레이아웃과 스타일을 담당하는 Card 컴포넌트입니다. */}
-      <Card className="bg-transparent hover:bg-card/50 transition-colors">
-        {/* 카드 상단 헤더 영역으로, 아바타와 제목 및 메타 정보를 포함합니다. */}
+    // 카드 전체를 클릭 시 해당 게시글 상세 페이지로 이동하도록 Link로 감쌈
+    <Link to={`/community/${postId}`} className="block">
+      {/* 카드 UI의 전체 레이아웃과 hover 시 배경 전환 스타일 적용 */}
+      <Card className={cn(
+        "bg-transparent hover:bg-card/50 transition-colors",
+        expanded ? "flex flex-row items-center justify-between" : ""
+      )}>
+        {/* 카드 상단: 작성자 아바타, 제목, 메타정보 영역 */}
         <CardHeader className="flex flex-row items-center gap-2">
-          {/* 작성자의 아바타를 표시하는 컴포넌트입니다. */}
+          {/* 작성자 프로필 이미지를 표시 (없으면 이니셜 표시) */}
           <Avatar className="size-14">
             {/* 아바타 이미지가 없을 경우 표시할 작성자 이니셜 */}
             <AvatarFallback>{initials}</AvatarFallback>
@@ -47,11 +53,23 @@ export function PostCard({ postId, title, author, authorAvatarUrl, category, tim
             </div>
           </div>
         </CardHeader>
-        {/* 카드 하단 영역으로, 답글 버튼이 포함되어 있습니다. */}
-        <CardFooter className="flex justify-end">
-          {/* 답글 버튼이며, 클릭 시 동일한 게시글 상세 페이지로 이동합니다. */}
-          <Button variant="link">Reply &rarr;</Button>
-        </CardFooter>
+
+        {/* 카드 하단: 축소 모드에서는 Reply 버튼 표시 */}
+        {!expanded && (
+          <CardFooter className="flex justify-end">
+            <Button variant="link">Reply &rarr;</Button>
+          </CardFooter>
+        )}
+        {/* 카드 하단: 확장 모드에서는 투표 버튼과 카운트 표시 */}
+        {expanded && (
+          <CardFooter className="flex justify-end  pb-0">
+            <Button variant="outline" className="flex flex-col h-14">
+              <ChevronUpIcon className="size-4 shrink-0" />
+              <span>{votesCount}</span>
+            </Button>
+          </CardFooter>
+        )}
+
       </Card>
     </Link>
   );
