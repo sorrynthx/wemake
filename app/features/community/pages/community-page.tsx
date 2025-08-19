@@ -24,7 +24,7 @@ export default function CommunityPage() {
   const sorting = searchParams.get("sorting") || "newest";
   const period = searchParams.get("period") || "all";
   return (
-    <div>
+    <div className="space-y-20">
       {/* HeroSection: 커뮤니티 페이지 상단 헤더 영역 */}
       <HeroSection
         title="Community"
@@ -94,7 +94,7 @@ export default function CommunityPage() {
               </Form>
             </div>
             <Button asChild>
-              <Link to={`/community/new`}>Create Discussion</Link>
+              <Link to={`/community/submit`}>Create Discussion</Link>
             </Button>
           </div>
           {/* PostCard 컴포넌트 반복 렌더링: 토론 목록 표시 */}
