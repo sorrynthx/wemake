@@ -39,7 +39,7 @@ export default [
         // 상품 검색 페이지
         route("/search", "features/products/pages/search-page.tsx"),
         // 상품 제출 페이지
-        route("/submit", "features/products/pages/submit-page.tsx"),
+        route("/submit", "features/products/pages/submit-product-page.tsx"),
         // 상품 홍보 페이지
         route("/promote", "features/products/pages/promote-page.tsx"),
         // 상품 상세 페이지 (레이아웃 적용)
@@ -48,7 +48,7 @@ export default [
                 index("features/products/pages/product-redirect-page.tsx"),
                 route("/overview", "features/products/pages/product-overview-page.tsx"),
                 ...prefix("/reviews", [
-                    index("features/products/pages/product-reviews-page.tsx"),                    
+                    index("features/products/pages/product-reviews-page.tsx"),
                 ])
             ]),
         ]),
@@ -73,10 +73,10 @@ export default [
             ...prefix("/otp", [
                 route("/start", "features/auth/pages/otp-start-page.tsx"),
                 route("/complete", "features/auth/pages/otp-complete-page.tsx"),
-              ]),
+            ]),
             ...prefix("/social/:provider", [
-            route("/start", "features/auth/pages/social-start-page.tsx"),
-            route("/complete", "features/auth/pages/social-complete-page.tsx"),
+                route("/start", "features/auth/pages/social-start-page.tsx"),
+                route("/complete", "features/auth/pages/social-complete-page.tsx"),
             ]),
         ]),
     ]),
@@ -86,5 +86,30 @@ export default [
         route("/:postId", "features/community/pages/post-page.tsx"),
         route("/submit", "features/community/pages/submit-post-page.tsx"),
     ]),
+    // 7.Teams
+    ...prefix("/teams", [
+        index("features/teams/pages/teams-page.tsx"),
+        route("/:teamId", "features/teams/pages/team-page.tsx"),
+        route("/create", "features/teams/pages/submit-team-page.tsx"),
+    ]),
 
+    // 8. Users
+    ...prefix("/my", [
+        ...prefix("/dashboard", [
+            index("features/users/pages/dashboard-page.tsx"),
+            route("/ideas", "features/users/pages/dashboard-ideas-page.tsx"),
+            route(
+                "/products/:productId",
+                "features/users/pages/dashboard-product-page.tsx"
+            ),
+        ]),
+        ...prefix("/messages", [
+            index("features/users/pages/messages-page.tsx"),
+            route("/:messageId", "features/users/pages/message-page.tsx"),
+        ]),
+        route("/profile", "features/users/pages/my-profile-page.tsx"),
+        route("/settings", "features/users/pages/settings-page.tsx"),
+        route("/notifications", "features/users/pages/notifications-page.tsx"),
+    ]),
+    route("/users/:username", "features/users/pages/profile-page.tsx"),
 ] satisfies RouteConfig;

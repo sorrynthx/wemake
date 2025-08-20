@@ -7,7 +7,7 @@ import {
 } from "~/common/components/ui/breadcrumb"; // 네비게이션용 Breadcrumb 컴포넌트
 import type { Route } from "./+types/post-page"; // meta 함수용 Route 타입
 import { Form, Link } from "react-router"; // react-router의 Form, Link 컴포넌트
-import { ChevronUpIcon, DotIcon, MessageCircleIcon } from "lucide-react"; // 페이지에 사용되는 아이콘
+import { ChevronUpIcon, DotIcon } from "lucide-react"; // 페이지에 사용되는 아이콘
 import { Button } from "~/common/components/ui/button"; // 버튼 컴포넌트
 import { Textarea } from "~/common/components/ui/textarea"; // 텍스트 영역 컴포넌트
 import {

@@ -43,7 +43,7 @@ export function Reply({
         <div className="flex flex-col gap-2 items-start">
           {/* 유저 이름과 작성 시간, 구분 점 */}
           <div className="flex gap-2 items-center">
-            <Link to={`/users/@${username}`}>
+            <Link to={`/users/${username}`}>
               <h4 className="font-medium">{username}</h4>
             </Link>
             <DotIcon className="size-5" />
