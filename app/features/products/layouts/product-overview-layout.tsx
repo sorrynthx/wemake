@@ -60,7 +60,9 @@ export default function ProductOverviewLayout({ params }: Route.ComponentProps) 
             {/* 네비게이션 탭 섹션 */}
             <div className="flex gap-2.5">
                 {/* Overview 탭 - /products/:productId/overview 경로로 이동 */}
-                <NavLink className={({ isActive }) =>
+                <NavLink 
+                    end
+                    className={({ isActive }) =>
                     cn(
                         buttonVariants({ variant: "outline" }),
                         isActive && "bg-accent text-foreground"

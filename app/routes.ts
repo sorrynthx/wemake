@@ -92,8 +92,7 @@ export default [
         route("/:teamId", "features/teams/pages/team-page.tsx"),
         route("/create", "features/teams/pages/submit-team-page.tsx"),
     ]),
-
-    // 8. Users
+    // 8. Users-Private
     ...prefix("/my", [
         ...prefix("/dashboard", [
             index("features/users/pages/dashboard-page.tsx"),
@@ -108,5 +107,12 @@ export default [
         route("/settings", "features/users/pages/settings-page.tsx"),
         route("/notifications", "features/users/pages/notifications-page.tsx"),
     ]),
-    route("/users/:username", "features/users/pages/profile-page.tsx"),
+    // 9. Users-Public
+    layout("features/users/layouts/profile-layout.tsx", [
+        ...prefix("/users/:username", [
+            index("features/users/pages/profile-page.tsx"),
+            route("/products", "features/users/pages/profile-products-page.tsx"),
+            route("/posts", "features/users/pages/profile-posts-page.tsx"),
+        ]),
+    ]),
 ] satisfies RouteConfig;

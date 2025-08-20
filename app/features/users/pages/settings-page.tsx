@@ -69,6 +69,16 @@ export default function SettingsPage() {
                 { label: "Other", value: "other" },
               ]}
             />
+            {/* 헤드라인 */}
+            <InputPair
+              label="Headline"
+              description="An introduction to your profile."
+              required
+              id="headline"
+              name="headline"
+              placeholder="John Doe"
+              textArea
+            />
             {/* 소개 입력 필드 */}
             <InputPair
               label="Bio"
@@ -82,7 +92,7 @@ export default function SettingsPage() {
             <Button className="w-full">Update profile</Button>
           </Form>
         </div>
-        
+
         {/* 아바타 업로드 영역 */}
         <aside className="col-span-2 p-6 rounded-lg border shadow-md">
           <Label className="flex flex-col gap-1">
