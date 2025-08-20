@@ -99,12 +99,18 @@ export default [
             route("/ideas", "features/users/pages/dashboard-ideas-page.tsx"),
             route("/products/:productId", "features/users/pages/dashboard-product-page.tsx"),
         ]),
-        ...prefix("/messages", [
-            index("features/users/pages/messages-page.tsx"),
-            route("/:messageId", "features/users/pages/message-page.tsx"),
+        // Messages
+        layout("features/users/layouts/messages-layout.tsx", [
+            ...prefix("/messages", [
+                index("features/users/pages/messages-page.tsx"),
+                route("/:messageId", "features/users/pages/message-page.tsx"),
+            ]),
         ]),
+        // Profile Private
         route("/profile", "features/users/pages/my-profile-page.tsx"),
+        // Settings
         route("/settings", "features/users/pages/settings-page.tsx"),
+        // Notifications
         route("/notifications", "features/users/pages/notifications-page.tsx"),
     ]),
     // 9. Users-Public
@@ -115,4 +121,5 @@ export default [
             route("/posts", "features/users/pages/profile-posts-page.tsx"),
         ]),
     ]),
+
 ] satisfies RouteConfig;
