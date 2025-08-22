@@ -44,9 +44,9 @@ export default function JobsPage() {
       />
 
       {/* 메인 콘텐츠 영역 - 6칸 그리드 레이아웃 */}
-      <div className="grid grid-cols-6 gap-20 items-start">
+      <div className="grid grid-cols-1 xl:grid-cols-6 gap-20 items-start">
         {/* 직업 목록 섹션 - 4칸 차지 (3열 그리드) */}
-        <div className="grid grid-cols-3 col-span-4 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:col-span-4 gap-5">
           {/* 임시 데이터로 5개의 직업 카드 렌더링 */}
           {Array.from({ length: 5 }, (_, index) => (
             <JobCard
@@ -65,7 +65,7 @@ export default function JobsPage() {
         </div>
 
         {/* 필터 사이드바 - 2칸 차지 */}
-        <div className="col-span-2 sticky top-20 flex flex-col gap-10">
+        <div className="xl:col-span-2 sticky top-20 flex flex-col gap-10">
           
           {/* 직업 타입 필터 */}
           <div className="flex flex-col items-start gap-2.5">

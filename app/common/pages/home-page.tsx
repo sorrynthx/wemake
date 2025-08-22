@@ -28,7 +28,7 @@ export const loader = () => {
 
 export default function HomePage({ loaderData }: Route.ComponentProps) {
   return (
-    <div className="px-20 space-y-40">
+    <div className="space-y-40">
       {/* Products */}
       <div className="grid grid-cols-3 gap-4">
         <div>
