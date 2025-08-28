@@ -18,6 +18,14 @@ export const JOB_TYPES = [
     label: "Remote",
     value: "remote",
   },
+  {
+    label: "Internship",
+    value: "internship",
+  },
+  {
+    label: "Freelance",
+    value: "freelance",
+  }
 ] as const;
 
 export const LOCATION_TYPES = [
