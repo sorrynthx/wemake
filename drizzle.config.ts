@@ -31,9 +31,9 @@ export default defineConfig({
   /**
    * 마이그레이션 파일이 생성될 디렉토리
    * - Git에 버전 관리하여 팀원들과 공유
-   * - 예: ./app/migrations/20250825_init_users.ts
+   * - 예: ./app/sql/migrations/20250825_init_users.ts
    */
-  out: "./app/migrations",
+  out: "./app/sql/migrations",
 
   /**
    * 사용할 데이터베이스 종류
