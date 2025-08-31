@@ -6,6 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLocation,
+  useNavigation,
 } from "react-router";
 
 import type { Route } from "./+types/root";
@@ -13,6 +14,7 @@ import "./app.css";
 
 import Navigation from "~/common/components/navigation";
 import { Settings } from "luxon";
+import { cn } from "./lib/utils";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -51,9 +53,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  // 현재 URL 경로(pathname)를 가져옴 → /auth 같은 경로 분기 처리에 사용
   const { pathname } = useLocation();  
+  
+  // react-router의 navigation 상태 훅 → 페이지 전환 상태를 알 수 있음
+  const navigation = useNavigation();
+  // 현재 페이지 전환 중인지 여부 확인 (loading 상태면 true)
+  const isLoading = navigation.state === "loading";
+
+  // 레이아웃 컨테이너: 경로와 로딩 상태에 따라 동적으로 클래스 부여
   return (
-      <div className={pathname.includes("/auth/") ? "" : "py-28 px-5 md:px-20"}>
+    <div
+      className={cn({
+        "py-28 px-5 md:px-20": !pathname.includes("/auth/"),
+        "transition-opacity animate-pulse": isLoading,
+      })}
+    >
       {/* /auth 경로인 경우 네비게이션 숨김 */}
       {pathname.includes("/auth") ? "" : (
         <Navigation 

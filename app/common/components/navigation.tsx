@@ -191,7 +191,10 @@ export default function Navigation({
                             >
                               {/* 링크를 실제 인터랙티브 요소로 사용 (asChild로 단일 자식 보장) */}
                               <NavigationMenuLink asChild>
-                                <Link className="p-3 space-y-1 block leading-none no-underline outline-none" to={item.to}>
+                                <Link 
+                                  className="p-3 space-y-1 block leading-none no-underline outline-none" 
+                                  to={item.to}
+                                >
                                   {/* 메뉴 이름 */}
                                   <span className="text-sm font-medium leading-none">{item.name}</span>
                                   {/* 메뉴 설명 */}

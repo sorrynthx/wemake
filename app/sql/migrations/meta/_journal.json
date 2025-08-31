@@ -57,6 +57,13 @@
       "when": 1756362921705,
       "tag": "0007_confused_toxin",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1756637686503,
+      "tag": "0008_bizarre_captain_britain",
+      "breakpoints": true
     }
   ]
 }

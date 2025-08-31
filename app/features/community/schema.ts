@@ -33,6 +33,7 @@ export const posts = pgTable("posts", {
   post_id: bigint({ mode: "number" }).primaryKey().generatedAlwaysAsIdentity(), // 게시글 고유 ID
   title: text().notNull(), // 제목
   content: text().notNull(), // 내용
+  upvotes: bigint({ mode: "number" }).default(0), // 좋아요 수
   created_at: timestamp().notNull().defaultNow(), // 생성 일시
   updated_at: timestamp().notNull().defaultNow(), // 수정 일시
   topic_id: bigint({ mode: "number" }).references(() => topics.topic_id, {

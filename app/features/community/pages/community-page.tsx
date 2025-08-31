@@ -1,4 +1,6 @@
-import { Form, Link, useSearchParams } from "react-router";
+import type { Route } from "./+types/community-page";
+// Await: Promise(비동기 값)를 컴포넌트 트리에서 해석해 주는 react-router 유틸
+import { Await, Form, Link, useSearchParams } from "react-router";
 import { Button } from "~/common/components/ui/button";
 import {
   DropdownMenu,
@@ -10,22 +12,43 @@ import { ChevronDownIcon } from "lucide-react";
 import { PERIOD_OPTIONS, SORT_OPTIONS } from "../constants";
 import { Input } from "~/common/components/ui/input";
 import { PostCard } from "../components/post-card";
+import { getPosts, getTopics } from "../queries";
 import { HeroSection } from "~/common/components/hero-section";
-import type { Route } from "./+types/community-page";
+import { Suspense } from "react";
 
-// 페이지 메타데이터 설정: 브라우저 탭 제목 지정
 export const meta: Route.MetaFunction = () => {
   return [{ title: "Community | wemake" }];
 };
 
-// CommunityPage 컴포넌트: 커뮤니티 메인 페이지 렌더링
-export default function CommunityPage() {
+// 🔹 loader (서버 전용)
+// - Remix/React Router에서 제공하는 표준 함수 이름 (커스텀 불가, 예약됨)
+// - 서버에서 실행되어 데이터 fetching, 인증, redirect 등의 로직을 처리
+// - 여기서는 getTopics(), getPosts()를 동시에 호출하여 초기 데이터(topics, posts)를 준비
+// - 반환된 데이터는 컴포넌트의 loaderData로 전달됨
+export const loader = async () => {
+  // await new Promise((resolve) => setTimeout(resolve, 10000));
+  const [topics, posts] = await Promise.all([getTopics(), getPosts()]);
+  return { topics, posts };
+};
+
+// 🔹 clientLoader (클라이언트 전용)
+// - Remix/React Router에서 제공하는 표준 함수 이름 (커스텀 불가, 예약됨)
+// - 클라이언트에서 실행되며, serverLoader의 데이터를 받아서 추가 처리 가능
+// - 예: analytics 트래킹, 클라이언트 전용 상태 초기화 등
+// - 여기서는 serverLoader 결과를 기반으로 추후 확장 가능
+export const clientLoader = async ({ serverLoader,}: Route.ClientLoaderArgs) => {
+  //track analytics
+};
+
+export default function CommunityPage({ loaderData }: Route.ComponentProps) {
+  
+  const { topics, posts } = loaderData;
+
   const [searchParams, setSearchParams] = useSearchParams();
   const sorting = searchParams.get("sorting") || "newest";
   const period = searchParams.get("period") || "all";
   return (
     <div className="space-y-20">
-      {/* HeroSection: 커뮤니티 페이지 상단 헤더 영역 */}
       <HeroSection
         title="Community"
         subtitle="Ask questions, share ideas, and connect with other developers"
@@ -35,7 +58,6 @@ export default function CommunityPage() {
           <div className="flex justify-between">
             <div className="space-y-5 w-full">
               <div className="flex items-center gap-5">
-                {/* 정렬 옵션 선택 DropdownMenu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex items-center gap-1">
                     <span className="text-sm capitalize">{sorting}</span>
@@ -58,7 +80,6 @@ export default function CommunityPage() {
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
-                {/* 인기글 기간 선택 DropdownMenu (sorting이 popular일 때만 표시) */}
                 {sorting === "popular" && (
                   <DropdownMenu>
                     <DropdownMenuTrigger className="flex items-center gap-1">
@@ -84,7 +105,6 @@ export default function CommunityPage() {
                   </DropdownMenu>
                 )}
               </div>
-              {/* 검색 Form: 토론 검색 입력 필드 */}
               <Form className="w-2/3">
                 <Input
                   type="text"
@@ -97,38 +117,38 @@ export default function CommunityPage() {
               <Link to={`/community/submit`}>Create Discussion</Link>
             </Button>
           </div>
-          {/* PostCard 컴포넌트 반복 렌더링: 토론 목록 표시 */}
-          <div className="space-y-5">
-            {Array.from({ length: 11 }).map((_, index) => (
-              <PostCard
-                key={`postId-${index}`}
-                postId={`postId-${index}`}
-                title="What is the best productivity tool?"
-                author="Nico"
-                authorAvatarUrl="https://github.com/apple.png"
-                category="Productivity"
-                timeAgo="12 hours ago"
-                expanded={index % 2 === 0 ? true : false}
-              />
-            ))}
-          </div>
+          
+            <div className="space-y-5">
+              {/* data는 posts가 resolve된 실제 배열 값 (fulfilled 결과) */}
+              {posts.map((post) => (
+                <PostCard
+                  key={post.post_id}
+                  id={post.post_id}
+                  title={post.title}
+                  author={post.author}
+                  authorAvatarUrl={post.author_avatar}
+                  category={post.topic}
+                  postedAt={post.created_at}
+                  votesCount={post.upvotes}
+                  expanded
+                />
+              ))}
+            </div>
+              
         </div>
-
-        {/* 사이드바 Topics 섹션: 인기 토픽 링크 목록 */}
         <aside className="col-span-2 space-y-5">
           <span className="text-sm font-bold text-muted-foreground uppercase">
             Topics
           </span>
           <div className="flex flex-col gap-2 items-start">
-            {[
-              "AI Tools",
-              "Design Tools",
-              "Dev Tools",
-              "Note Taking Apps",
-              "Productivity Tools",
-            ].map((category) => (
-              <Button asChild variant={"link"} key={category} className="pl-0">
-                <Link to={`/community?topic=${category}`}>{category}</Link>
+            {topics.map((topic) => (
+              <Button
+                asChild
+                variant={"link"}
+                key={topic.slug}
+                className="pl-0"
+              >
+                <Link to={`/community?topic=${topic.slug}`}>{topic.name}</Link>
               </Button>
             ))}
           </div>

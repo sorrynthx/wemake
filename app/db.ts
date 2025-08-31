@@ -36,7 +36,7 @@ const client = postgres(process.env.DATABASE_URL!, {
  *     import * as schema from "@/db/schema";
  *     const db = drizzle(client, { schema });
  */
-const db = drizzle(client);
+const db = drizzle(client, { logger: true });
 
 /**
  * 기본 내보내기
