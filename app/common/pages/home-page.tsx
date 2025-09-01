@@ -6,6 +6,8 @@ import { IdeaCard } from "~/features/ideas/components/idea-card";
 import { JobCard } from "~/features/jobs/components/job-card";
 import { TeamCard } from "~/features/teams/components/team-card";
 import type { Route } from "./+types/home-page";
+import { getProductsByDateRange } from "~/features/products/querues";
+import { DateTime } from "luxon";
 
 export const meta: MetaFunction = () => {
   return [
@@ -19,11 +21,14 @@ export const meta: MetaFunction = () => {
  * - 페이지가 렌더링되기 전에 서버 또는 클라이언트에서 필요한 데이터를 불러오는 함수
  * - 반환한 데이터는 해당 페이지 컴포넌트의 props로 전달되어 사용됨
  */
-export const loader = () => {
-  console.log('Hello! ');
-  return {
-    hello: "world"
-  };
+export const loader = async () => {
+  const products = await getProductsByDateRange({
+    startDate: DateTime.now().startOf("day"),
+    endDate: DateTime.now().endOf("day"),
+    limit: 7,
+  });
+  return { products };
+  
 }
 
 export default function HomePage({ loaderData }: Route.ComponentProps) {
@@ -38,24 +43,19 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
             <Link to="/products/leaderboards">Explore all products &rarr;</Link>
           </Button>
         </div>
-
-        {
-          // Array.from은 배열을 생성하는 메서드입니다.
-          // 첫 번째 인자인 { length: 10 }은 길이가 10인 배열을 의미하며, 실제 값은 undefined입니다.
-          // 두 번째 인자인 콜백의 (_, index)에서 _는 배열의 요소(여기서는 사용하지 않으므로 _로 표기), index는 현재 인덱스를 나타냅니다.
-          // 이 코드는 ProductCard 컴포넌트를 10개 생성하기 위해 사용됩니다.
-          Array.from({ length: 10 }, (_, index) => (
-          <ProductCard
-            key={index}
-            productId={`product-${index + 1}`}
-            name={`Product ${index + 1}`}
-            description={`This is a sample description for product ${index + 1}`}
-            commentCount={Math.floor(Math.random() * 50) + 5}
-            viewCount={Math.floor(Math.random() * 200) + 20}
-            upvoteCount={Math.floor(Math.random() * 300) + 50}
-          />
-          ))
-        }
+ 
+          {loaderData.products.map((product, index) => (
+            <ProductCard
+              key={product.product_id}
+              id={product.product_id.toString()}
+              name={product.name}
+              description={product.description}
+              reviewsCount={product.reviews}
+              viewsCount={product.views}
+              votesCount={product.upvotes}
+            />
+          ))}
+        
       </div>
 
       {/* Discussions */}
@@ -71,12 +71,12 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
         {Array.from({ length: 5 }, (_, index) => (
           <PostCard
             key={index}
-            postId={`post-${index + 1}`}
+            id={`post-${index + 1}`}
             title={`Waht is the best productivity tool? ${index + 1}`}
             author={`User ${index + 1}`}
             authorAvatarUrl={`https://github.com/user${index + 1}.png`}
             category={["Productivity", "Design", "Development", "Marketing", "Business"][index]}
-            timeAgo={`${index + 1} hours ago`}
+            postedAt={`${index + 1} hours ago`}
           />
         ))}
       </div>

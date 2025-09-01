@@ -19,7 +19,7 @@ export const products = pgTable("products", {
     // 제품 웹사이트 또는 링크 (필수)
     url: text().notNull(),
     // 제품 통계 (조회수, 리뷰수) - JSONB
-    stats: jsonb().notNull().default({ views: 0, reviews: 0 }),
+    stats: jsonb().notNull().default({ views: 0, reviews: 0, upvotes: 0 }),
     // 등록한 사용자 프로필 ID (users.profiles 참조, 삭제 시 cascade)
     profile_id: uuid()
         .references(() => profiles.profile_id, { onDelete: "cascade" })

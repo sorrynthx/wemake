@@ -10,7 +10,7 @@ import { cn } from "~/lib/utils";
 
 // PostCard 컴포넌트에 전달되는 게시글 데이터의 타입 정의
 interface PostCardProps {
-  id: number;
+  id: string;
   title: string;
   author: string;
   authorAvatarUrl: string | null;
