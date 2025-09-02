@@ -6,7 +6,7 @@ import { IdeaCard } from "~/features/ideas/components/idea-card";
 import { JobCard } from "~/features/jobs/components/job-card";
 import { TeamCard } from "~/features/teams/components/team-card";
 import type { Route } from "./+types/home-page";
-import { getProductsByDateRange } from "~/features/products/querues";
+import { getProductsByDateRange } from "~/features/products/queries";
 import { DateTime } from "luxon";
 
 export const meta: MetaFunction = () => {

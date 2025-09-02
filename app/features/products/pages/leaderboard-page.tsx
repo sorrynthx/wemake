@@ -4,7 +4,7 @@ import { ProductCard } from "../components/product-card";
 import { Button } from "~/common/components/ui/button";
 import { Link } from "react-router";
 import { DateTime } from "luxon";
-import { getProductsByDateRange } from "~/features/products/querues";
+import { getProductsByDateRange } from "~/features/products/queries";
 
 export const meta: Route.MetaFunction = () => {
   return [

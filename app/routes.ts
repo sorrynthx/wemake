@@ -15,19 +15,30 @@ export default [
         // 상품 리스트 페이지
         index("features/products/pages/products-page.tsx"),
         // 상품 리더보드 관련 페이지 라우트
-        ...prefix("leaderboards", [
-            // 전체 리더보드 기본 페이지
-            index("features/products/pages/leaderboard-page.tsx"),
-            // 연도별 리더보드 페이지
-            route("/yearly/:year", "features/products/pages/yearly-leaderboard-page.tsx"),
-            // 월별 리더보드 페이지
-            route("/monthly/:year/:month", "features/products/pages/monthly-leaderboard-page.tsx"),
-            // 일별 리더보드 페이지
-            route("/daily/:year/:month/:day", "features/products/pages/daily-leaderboard-page.tsx"),
-            // 주간 리더보드 페이지
-            route("/weekly/:year/:week", "features/products/pages/weekly-leaderboard-page.tsx"),
-            // 리더보드 리다이렉트 페이지
-            route("/:period", "features/products/pages/leaderboards-redirection-page.tsx"),
+        layout("features/products/layouts/leaderboard-layout.tsx", [
+            ...prefix("leaderboards", [
+                index("features/products/pages/leaderboard-page.tsx"),
+                route(
+                    "/yearly/:year",
+                    "features/products/pages/yearly-leaderboard-page.tsx"
+                ),
+                route(
+                    "/monthly/:year/:month",
+                    "features/products/pages/monthly-leaderboard-page.tsx"
+                ),
+                route(
+                    "/daily/:year/:month/:day",
+                    "features/products/pages/daily-leaderboard-page.tsx"
+                ),
+                route(
+                    "/weekly/:year/:week",
+                    "features/products/pages/weekly-leaderboard-page.tsx"
+                ),
+                route(
+                    "/:period",
+                    "features/products/pages/leaderboards-redirection-page.tsx"
+                ),
+            ]),
         ]),
         // 상품 카테고리 관련 페이지 라우트
         ...prefix("categories", [
@@ -97,12 +108,12 @@ export default [
         // Dashboard
         layout("features/users/layouts/dashboard-layout.tsx", [
             ...prefix("/dashboard", [
-              index("features/users/pages/dashboard-page.tsx"),
-              route("/ideas", "features/users/pages/dashboard-ideas-page.tsx"),
-              route(
-                "/products/:productId",
-                "features/users/pages/dashboard-product-page.tsx"
-              ),
+                index("features/users/pages/dashboard-page.tsx"),
+                route("/ideas", "features/users/pages/dashboard-ideas-page.tsx"),
+                route(
+                    "/products/:productId",
+                    "features/users/pages/dashboard-product-page.tsx"
+                ),
             ])
         ]),
         // Messages
