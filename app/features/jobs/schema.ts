@@ -5,7 +5,7 @@
  */
 
 import { bigint, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
-import { JOB_TYPES, LOCATION_TYPES, SALARY_RANGE } from "./constant";
+import { JOB_TYPES, LOCATION_TYPES, SALARY_RANGE } from "./constants";
 
 /**
  * pgEnum("job_type", values)

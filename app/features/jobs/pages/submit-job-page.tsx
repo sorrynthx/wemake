@@ -2,7 +2,7 @@
 // 잡 포스팅 폼 필드와 레이아웃을 포함합니다.
 import { Button } from "~/common/components/ui/button";
 import type { Route } from "./+types/submit-job-page";
-import { JOB_TYPES, LOCATION_TYPES, SALARY_RANGE } from "../constant";
+import { JOB_TYPES, LOCATION_TYPES, SALARY_RANGE } from "../constants";
 import SelectPair from "~/common/components/select-pair";
 import InputPair from "~/common/components/input-pair";
 import { Form } from "react-router";

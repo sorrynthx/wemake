@@ -10,6 +10,7 @@ import { getProductsByDateRange } from "~/features/products/queries";
 import { DateTime } from "luxon";
 import { getPosts } from "~/features/community/queries";
 import { getGptIdeas } from "~/features/ideas/queries";
+import { getJobs } from "~/features/jobs/queries";
 
 export const meta: MetaFunction = () => {
   return [
@@ -34,7 +35,9 @@ export const loader = async () => {
     sorting: "newest",
   });
   const ideas = await getGptIdeas({ limit: 7 });
-  return { products, posts, ideas };
+  const jobs = await getJobs({ limit: 11 });
+
+  return { products, posts, ideas, jobs };
 }
 
 export default function HomePage({ loaderData }: Route.ComponentProps) {
@@ -119,18 +122,18 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
             <Link to="/jobs">Explore all Jobs &rarr;</Link>
           </Button>
         </div>
-        {Array.from({ length: 5 }, (_, index) => (
+        {loaderData.jobs.map((job) => (
           <JobCard
-            key={index}
-            jobId={`job-${index + 1}`}
-            companyName={["Tesla", "Google", "Apple", "Microsoft", "Meta"][index]}
-            companyLogoUrl={`https://github.com/${["tesla", "google", "apple", "microsoft", "facebook"][index]}.png`}
-            jobTitle={["Software Engineer", "Product Manager", "UX Designer", "Data Scientist", "Web Developer"][index]}
-            timeAgo={`${index + 1} hours ago`}
-            employmentType={["Full-time", "Part-time", "Contract", "Internship", "Contract"][index]}
-            location={["Remote", "Hybrid", "On-site", "Remote", "Remote"][index]}
-            salary={["$100,000 - $120,000", "$80,000 - $100,000", "$70,000 - $90,000", "$90,000 - $110,000", "$80,000 - $100,000"][index]}
-            city={["San Francisco, CA", "New York, NY", "Seattle, WA", "Austin, TX", "San Francisco, CA"][index]}
+            key={job.job_id}
+            id={job.job_id}
+            company={job.company_name}
+            companyLogoUrl={job.company_logo}
+            companyHq={job.company_location}
+            title={job.position}
+            postedAt={job.created_at}
+            type={job.job_type}
+            positionLocation={job.location}
+            salary={job.salary_range}
           />
         ))}
       </div>
