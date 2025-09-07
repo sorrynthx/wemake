@@ -17,26 +17,44 @@ import {
 } from "~/common/components/ui/dialog";
 import { Textarea } from "~/common/components/ui/textarea";
 import { cn } from "~/lib/utils";
+import { getUserProfile } from "../queries";
+import type { Route } from "./+types/profile-layout";
 
-// 프로필 페이지의 레이아웃을 구성하는 컴포넌트
-export default function ProfileLayout() {
+export const meta: Route.MetaFunction = ({ data }) => {
+  // 데이터가 없는 경우를 대비해 안전하게 처리
+  const title = data?.user?.name ? `${data.user.name} | wemake` : "wemake";
+  return [{ title }];
+};
+
+
+
+export const loader = async ({
+  params,
+}: Route.LoaderArgs & { params: { username: string } }) => {
+  const user = await getUserProfile(params.username);
+  return { user };
+};
+
+export default function ProfileLayout({ loaderData }: Route.ComponentProps) {
   return (
     <div className="space-y-10">
       <div className="flex items-center gap-4">
-        {/* 사용자 프로필 이미지 및 이름 표시 */}
         <Avatar className="size-40">
-          <AvatarImage src="https://github.com/shadcn.png" />
-          <AvatarFallback>N</AvatarFallback>
+          {loaderData.user.avatar ? (
+            <AvatarImage src={loaderData.user.avatar} />
+          ) : (
+            <AvatarFallback className="text-2xl">
+              {loaderData.user.name[0]}
+            </AvatarFallback>
+          )}
         </Avatar>
         <div className="space-y-5">
-          {/* 프로필 수정, 팔로우, 메시지 버튼 제공 */}
           <div className="flex gap-2">
-            <h1 className="text-2xl font-semibold">John Doe</h1>
+            <h1 className="text-2xl font-semibold">{loaderData.user.name}</h1>
             <Button variant="outline" asChild>
               <Link to="/my/settings">Edit profile</Link>
             </Button>
             <Button variant="secondary">Follow</Button>
-            {/* 메시지 전송 다이얼로그 */}
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="secondary">Message</Button>
@@ -62,22 +80,26 @@ export default function ProfileLayout() {
             </Dialog>
           </div>
           <div className="flex gap-2 items-center">
-            <span className="text-sm text-muted-foreground">@john_doe</span>
-            <Badge variant={"secondary"}>Product Designer</Badge>
+            <span className="text-sm text-muted-foreground">
+              @{loaderData.user.username}
+            </span>
+            <Badge variant={"secondary"} className="capitalize">
+              {loaderData.user.role}
+            </Badge>
             <Badge variant={"secondary"}>100 followers</Badge>
             <Badge variant={"secondary"}>100 following</Badge>
           </div>
         </div>
       </div>
-      {/* 프로필 하위 메뉴 (About, Products, Posts) 네비게이션 */}
       <div className="flex gap-5">
         {[
-          { label: "About", to: "/users/username" },
-          { label: "Products", to: "/users/username/products" },
-          { label: "Posts", to: "/users/username/posts" },
+          { label: "About", to: `/users/${loaderData.user.username}` },
+          {
+            label: "Products",
+            to: `/users/${loaderData.user.username}/products`,
+          },
+          { label: "Posts", to: `/users/${loaderData.user.username}/posts` },
         ].map((item) => (
-          /* end 속성을 추가하면 경로가 정확히 일치할 때만 활성화됨 
-          (예: "/users/username" 에서는 활성화되지만 "/users/username/products"에서는 비활성화됨) */
           <NavLink
             end
             key={item.label}
@@ -93,9 +115,13 @@ export default function ProfileLayout() {
           </NavLink>
         ))}
       </div>
-      {/* 선택된 하위 페이지 내용 표시 */}
       <div className="max-w-screen-md">
-        <Outlet />
+        <Outlet
+          context={{
+            headline: loaderData.user.headline,
+            bio: loaderData.user.bio,
+          }}
+        />
       </div>
     </div>
   );

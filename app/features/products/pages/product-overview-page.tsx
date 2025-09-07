@@ -1,29 +1,32 @@
 import type { Route } from "./+types/product-overview-page";
+import { useOutletContext } from "react-router";
+import client from "~/supa-client";
 
-export const meta: Route.MetaFunction = () => {
-  return [
-    { title: "Product Overview | wemake" },
-    { name: "description", content: "Detailed product information and features" }
-  ];
-}
+export const loader = async ({ params }: Route.LoaderArgs) => {
+  await client.rpc("track_event", {
+    event_type: "product_view",
+    event_data: {
+      product_id: params.productId,
+    },
+  });
+  return null;
+};
 
-export default function ProductOverviewPage({ params }: Route.ComponentProps) {
-
+export default function ProductOverviewPage() {
+  const { description, how_it_works } = useOutletContext<{
+    description: string;
+    how_it_works: string;
+  }>();
   return (
     <div className="space-y-10">
       <div className="space-y-1">
-        <h3 className="text-lg font-bold">What is this product ?</h3>
-        <p className="text-muted-foreground">
-          Lorem ipsum dolor sit amet 테스트 설명입니다. 제품에 대한 설명이 입력될 예정입니다.
-        </p>
+        <h3 className="text-lg font-bold">What is this product?</h3>
+        <p className="text-muted-foreground">{description}</p>
       </div>
       <div className="space-y-1">
-        <h3 className="text-lg font-bold">How does it work ?</h3>
-        <p className="text-muted-foreground">
-          Lorem ipsum dolor sit amet 테스트 설명입니다. 제품에 대한 설명이 입력될 예정입니다.
-        </p>
+        <h3 className="text-lg font-bold">How does it work?</h3>
+        <p className="text-muted-foreground">{how_it_works}</p>
       </div>
-
     </div>
   );
 }

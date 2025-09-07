@@ -10,7 +10,7 @@ import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "~/comm
 // ProductCard 컴포넌트의 props 타입 정의
 interface ProductCardProps {
   // 상품의 고유 아이디
-  id: string;
+  id: number | string;
   // 상품명
   name: string;
   // 상품 설명

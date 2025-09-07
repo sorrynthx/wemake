@@ -1,54 +1,50 @@
-import { Avatar, AvatarFallback, AvatarImage } from "~/common/components/ui/avatar";
+
 import { StarIcon } from "lucide-react";
+import { DateTime } from "luxon";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "~/common/components/ui/avatar";
 
 interface ReviewCardProps {
-  author: {
-    name: string;
-    username: string;
-    avatarUrl?: string;
-    avatarFallback: string;
-  };
+  username: string;
+  handle: string;
+  avatarUrl: string | null;
   rating: number;
   content: string;
-  createdAt: string;
+  postedAt: string;
 }
 
-export function ReviewCard({ author, rating, content, createdAt }: ReviewCardProps) {
+export function ReviewCard({
+  username,
+  handle,
+  avatarUrl,
+  rating,
+  content,
+  postedAt,
+}: ReviewCardProps) {
   return (
     <div className="space-y-5">
-      {/* Author Information */}
       <div className="flex items-center gap-2">
         <Avatar>
-          <AvatarFallback>{author.avatarFallback}</AvatarFallback>
-          {author.avatarUrl && <AvatarImage src={author.avatarUrl} />}
+          <AvatarFallback>{username[0]}</AvatarFallback>
+          {avatarUrl ? <AvatarImage src={avatarUrl} /> : null}
         </Avatar>
         <div>
-          <h4 className="text-lg font-bold">{author.name}</h4>
-          <p className="text-sm text-muted-foreground">
-            @{author.username}
-          </p>
+          <h4 className="text-lg font-bold">{username}</h4>
+          <p className="text-sm text-muted-foreground">{handle}</p>
         </div>
       </div>
-
-      {/* Rating Stars */}
       <div className="flex text-yellow-400">
-        {Array.from({ length: 5 }).map((_, index) => (
-          <StarIcon 
-            key={index}
-            className="size-4" 
-            fill={index < rating ? "currentColor" : "none"}
-            stroke="currentColor"
-          />
+        {Array.from({ length: rating }).map((_, i) => (
+          <StarIcon key={i} className="size-4" fill="currentColor" />
         ))}
       </div>
-
-      {/* Review Content */}
-      <p className="text-muted-foreground">
-        {content}
-      </p>
-
-      {/* Creation Date */}
-      <span className="text-xs text-muted-foreground">{createdAt}</span>
+      <p className="text-muted-foreground">{content}</p>
+      <span className="text-xs text-muted-foreground">
+        {DateTime.fromISO(postedAt).toRelative()}
+      </span>
     </div>
   );
 }

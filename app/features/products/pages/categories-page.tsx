@@ -1,45 +1,31 @@
 import { HeroSection } from "~/common/components/hero-section";
 import type { Route } from "./+types/categories-page";
 import { CategoryCard } from "../components/category-card";
+import { getCategories } from "../queries";
 
-export const meta: Route.MetaFunction = () => {
-  return [
-    { title: "Product Categories - WeMake" },
-    { name: "description", content: "Browse products by category" }
-  ];
-}
+export const meta: Route.MetaFunction = () => [
+  { title: "Categories | ProductHunt Clone" },
+  { name: "description", content: "Browse products by category" },
+];
+
+export const loader = async () => {
+  const categories = await getCategories();
+  return { categories };
+};
 
 export default function CategoriesPage({ loaderData }: Route.ComponentProps) {
-  const categories = [
-    { id: "saas", name: "SaaS", description: "Software as a Service solutions" },
-    { id: "ai-ml", name: "AI/ML", description: "Artificial Intelligence and Machine Learning tools" },
-    { id: "developer-tools", name: "Developer Tools", description: "Tools for developers and engineers" },
-    { id: "design-tools", name: "Design Tools", description: "Creative design and prototyping tools" },
-    { id: "marketing-tools", name: "Marketing Tools", description: "Digital marketing and growth tools" },
-    { id: "fintech", name: "Fintech", description: "Financial technology and payment solutions" },
-    { id: "open-source", name: "Open Source", description: "Open source projects and tools" }
-  ];
-
   return (
     <div className="space-y-10">
-      {/* 히어로 섹션: 페이지 제목과 부제목 */}
-      <HeroSection
-        title="Categories"
-        subtitle="Search for Products! by Categories"
-      />
-
+      <HeroSection title="Categories" subtitle="Browse products by category" />
       <div className="grid grid-cols-4 gap-10">
-        {categories.map((category) => (
+        {loaderData.categories.map((category) => (
           <CategoryCard
-            key={category.id}
-            id={category.id}
+            key={category.category_id}
+            id={category.category_id}
             name={category.name}
-            description={category.description}
-            to={`/products/categories/${category.id}`}
-          />
+            description={category.description} to={`/products/categories/${category.category_id}`}          />
         ))}
       </div>
-
     </div>
   );
 }

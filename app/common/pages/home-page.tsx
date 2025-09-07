@@ -11,6 +11,7 @@ import { DateTime } from "luxon";
 import { getPosts } from "~/features/community/queries";
 import { getGptIdeas } from "~/features/ideas/queries";
 import { getJobs } from "~/features/jobs/queries";
+import { getTeams } from "~/features/teams/queries";
 
 export const meta: MetaFunction = () => {
   return [
@@ -36,8 +37,9 @@ export const loader = async () => {
   });
   const ideas = await getGptIdeas({ limit: 7 });
   const jobs = await getJobs({ limit: 11 });
-
-  return { products, posts, ideas, jobs };
+  const teams = await getTeams({ limit: 7 });
+  
+  return { products, posts, ideas, jobs, teams };
 }
 
 export default function HomePage({ loaderData }: Route.ComponentProps) {
@@ -56,9 +58,9 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
           {loaderData.products.map((product, index) => (
             <ProductCard
               key={product.product_id}
-              id={product.product_id.toString()}
+              id={product.product_id}
               name={product.name}
-              description={product.description}
+              description={product.tagline}
               reviewsCount={product.reviews}
               viewsCount={product.views}
               votesCount={product.upvotes}
@@ -147,37 +149,14 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
             <Link to="/teams">Explore all Teams &rarr;</Link>
           </Button>
         </div>
-        {Array.from({ length: 10 }, (_, index) => (
+        {loaderData.teams.map((team) => (
           <TeamCard
-            key={index}
-            teamId={`team-${index + 1}`}
-            leaderUsername={["ㄲㄱ", "dev_user", "coder123", "tech_lead", "startup_founder", "ai_researcher", "game_dev", "fintech_expert", "health_tech", "edtech_innovator"][index]}
-            leaderAvatarUrl={`https://github.com/${["sorrynthx", "user1", "user2", "user3", "user4", "user5", "user6", "user7", "user8", "user9"][index]}.png`}
-            leaderAvatarFallback={["ㄲ", "D", "C", "T", "S", "A", "G", "F", "H", "E"][index]}
-            positions={[
-              ["React Developer", "Backend Developer", "Data Scientist"],
-              ["Frontend Developer", "UI/UX Designer"],
-              ["Full Stack Developer", "DevOps Engineer"],
-              ["Product Manager", "Marketing Specialist"],
-              ["Mobile Developer", "Backend Engineer", "Designer"],
-              ["ML Engineer", "Data Engineer", "Frontend Dev"],
-              ["Game Developer", "3D Artist", "Sound Designer"],
-              ["Backend Developer", "Security Expert", "DevOps"],
-              ["Full Stack Developer", "UI/UX Designer", "QA Engineer"],
-              ["Frontend Developer", "Backend Developer", "Product Manager"]
-            ][index]}
-            projectDescription={[
-              "a new social media platform",
-              "an e-commerce mobile app",
-              "a blockchain-based game",
-              "a SaaS productivity tool",
-              "a food delivery platform",
-              "an AI-powered chatbot",
-              "a multiplayer mobile game",
-              "a fintech payment solution",
-              "a healthcare monitoring app",
-              "an online learning platform"
-            ][index]}
+            key={team.team_id}
+            id={team.team_id}
+            leaderUsername={team.team_leader.username}
+            leaderAvatarUrl={team.team_leader.avatar}
+            positions={team.roles.split(",")}
+            projectDescription={team.product_description}
           />
         ))}
       </div>

@@ -62,6 +62,7 @@ export default [
                     index("features/products/pages/product-reviews-page.tsx"),
                 ])
             ]),
+            route("/visit", "features/products/pages/product-visit-page.tsx"),
         ]),
 
     ]),
@@ -131,8 +132,8 @@ export default [
         route("/notifications", "features/users/pages/notifications-page.tsx"),
     ]),
     // 9. Users-Public
-    layout("features/users/layouts/profile-layout.tsx", [
-        ...prefix("/users/:username", [
+    ...prefix("/users/:username", [
+        layout("features/users/layouts/profile-layout.tsx", [
             index("features/users/pages/profile-page.tsx"),
             route("/products", "features/users/pages/profile-products-page.tsx"),
             route("/posts", "features/users/pages/profile-posts-page.tsx"),
