@@ -44,10 +44,16 @@ export default function Navigation({
   isLoggedIn,
   hasNotifications,
   hasMessages,
+  username,
+  avatar,
+  name,
 }: {
   isLoggedIn: boolean;
   hasNotifications: boolean;
   hasMessages: boolean;
+  username?: string;
+  avatar?: string | null;
+  name?: string;
 }) {
   // 네비게이션 메뉴 데이터 (이름/경로/설명)
   const menus: {
@@ -244,15 +250,20 @@ export default function Navigation({
           {/* 프로필 드롭다운 - Trigger에 asChild 사용, 단일 자식(Avatar) 전달 */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Avatar>
-                <AvatarImage src="https://github.com/sorrynthx.png" />
-                <AvatarFallback>S</AvatarFallback>
-              </Avatar>
+            <Avatar>
+              {avatar ? (
+                <AvatarImage className="object-cover" src={avatar} />
+              ) : (
+                <AvatarFallback>{name?.[0]}</AvatarFallback>
+              )}
+            </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
               <DropdownMenuLabel className="flex flex-col">
-                <span className="font-medium">Sorrynthx</span>
-                <span className="text-xs text-muted-foreground">@ㄲㄱ</span>
+              <span className="font-medium">{name}</span>
+              <span className="text-xs text-muted-foreground">
+                @{username}
+              </span>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>

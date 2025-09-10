@@ -15,6 +15,8 @@ import "./app.css";
 import Navigation from "~/common/components/navigation";
 import { Settings } from "luxon";
 import { cn } from "./lib/utils";
+import { makeSSRClient } from "./supa-client";
+import { getUserById } from "./features/users/queries";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -52,7 +54,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const { client } = makeSSRClient(request);
+  const {
+    data: { user },
+  } = await client.auth.getUser();
+  
+  if (user) {
+    const profile = await getUserById(client, { id: user?.id });
+    return { user, profile };
+  }
+  return { user: null, profile: null };
+};
+
+export default function App({ loaderData }: Route.ComponentProps) {
+
   // 현재 URL 경로(pathname)를 가져옴 → /auth 같은 경로 분기 처리에 사용
   const { pathname } = useLocation();  
   
@@ -60,6 +76,8 @@ export default function App() {
   const navigation = useNavigation();
   // 현재 페이지 전환 중인지 여부 확인 (loading 상태면 true)
   const isLoading = navigation.state === "loading";
+
+  const isLoggedIn = loaderData.user !== null;
 
   // 레이아웃 컨테이너: 경로와 로딩 상태에 따라 동적으로 클래스 부여
   return (
@@ -72,7 +90,10 @@ export default function App() {
       {/* /auth 경로인 경우 네비게이션 숨김 */}
       {pathname.includes("/auth") ? "" : (
         <Navigation 
-          isLoggedIn={true} 
+          isLoggedIn={isLoggedIn} 
+          username={loaderData.profile?.username}
+          avatar={loaderData.profile?.avatar}
+          name={loaderData.profile?.name}
           hasNotifications={true}
           hasMessages={true}
         />

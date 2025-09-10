@@ -1,4 +1,9 @@
-import { createClient } from "@supabase/supabase-js";
+import {
+  createBrowserClient,
+  createServerClient,
+  parseCookieHeader,
+  serializeCookieHeader,
+} from "@supabase/ssr";
 import type { MergeDeep, SetNonNullable, SetFieldType } from "type-fest";
 import type { Database as SupabaseDatabase } from "database.types";
 
@@ -34,7 +39,7 @@ import type { Database as SupabaseDatabase } from "database.types";
 // 원본: Supabase가 CLI로 생성해 준 타입의 경로를 그대로 인덱싱해 사용한다.
 //       ["public"]["Views"]["community_post_list_view"]["Row"] 경로가 바로 해당 View의 결과 Row 타입.
 
-type Database = MergeDeep<
+export type Database = MergeDeep<
   SupabaseDatabase,
   {
     public: {
@@ -68,34 +73,43 @@ type Database = MergeDeep<
   }
 >;
 
-/**
- * createClient<Database>(url, anonKey)
- * - 제네릭 파라미터로 위에서 정의한 Database를 넘김으로써,
- *   `.from("테이블명")` 이후 체이닝되는 모든 쿼리에 타입 안전성이 적용된다.
- *
- * ⚠️ 환경변수 주의:
- *   - 브라우저에서 사용할 클라이언트라면 공개 가능한 키만 노출해야 하므로
- *     일반적으로 `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`를 쓴다.
- *   - 현재는 non-null 단언(`!`)으로 강제하지만, 누락 시 런타임에서 터질 수 있다.
- *     운영 배포라면 안전 가드(주석 예시)를 적용하는 걸 권장.
- *
- *   // 예시) 보다 안전한 초기화 패턴
- *   // const { NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY } = process.env;
- *   // if (!NEXT_PUBLIC_SUPABASE_URL || !NEXT_PUBLIC_SUPABASE_ANON_KEY) {
- *   //   throw new Error("Supabase env is missing");
- *   // }
- *   // const client = createClient<Database>(NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY);
- */
-const client = createClient<Database>(
+
+export const browserClient = createBrowserClient<Database>(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_ANON_KEY!
 );
 
-/**
- * export default client
- * - 어디서든 `import client from "@/app/supa-client"` 형태로 불러서
- *   `client.from("...")`로 쿼리를 날린다.
- * - 세션 기반 인증이 필요한 RSC/서버 핸들러에선 `@supabase/auth-helpers-nextjs`
- *   전용 클라이언트를 별도 파일로 두는 패턴도 흔하다.
- */
-export default client;
+export const makeSSRClient = (request: Request) => {
+  const headers = new Headers();
+  const serverSideClient = createServerClient<Database>(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          const cookies = parseCookieHeader(request.headers.get("Cookie") ?? "");
+          // 쿠키 값이 undefined인 경우 빈 문자열로 변환하여 타입 안정성 확보
+          return cookies.map(cookie => ({
+            name: cookie.name,
+            value: cookie.value ?? ""
+          }));
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            headers.append(
+              "Set-Cookie",
+              serializeCookieHeader(name, value, options)
+            );
+          });
+        },
+      },
+    }
+  );
+
+  return {
+    client: serverSideClient,
+    headers,
+  };
+};
+
+export default browserClient;

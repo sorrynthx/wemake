@@ -19,6 +19,7 @@ import { Textarea } from "~/common/components/ui/textarea";
 import { cn } from "~/lib/utils";
 import { getUserProfile } from "../queries";
 import type { Route } from "./+types/profile-layout";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = ({ data }) => {
   // 데이터가 없는 경우를 대비해 안전하게 처리
@@ -29,9 +30,15 @@ export const meta: Route.MetaFunction = ({ data }) => {
 
 
 export const loader = async ({
+  request,
   params,
 }: Route.LoaderArgs & { params: { username: string } }) => {
-  const user = await getUserProfile(params.username);
+  const { client, headers } = makeSSRClient(request);
+  // URL 인코딩된 username을 디코딩
+  const decodedUsername = decodeURIComponent(params.username);
+  const user = await getUserProfile(client, {
+    username: decodedUsername,
+  });
   return { user };
 };
 

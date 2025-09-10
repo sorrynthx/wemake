@@ -1,22 +1,29 @@
-import client from "~/supa-client";
+import pkg from "@supabase/supabase-js";
+const { SupabaseClient } = pkg;
+import type { Database } from "~/supa-client";
 import { JOB_TYPES, LOCATION_TYPES, SALARY_RANGE } from "./constants";
+
+type SupabaseClientType = InstanceType<typeof SupabaseClient<Database>>;
 
 // 상수에서 유효한 값들만 추출하여 타입으로 정의
 type JobType = typeof JOB_TYPES[number]["value"];
 type LocationType = typeof LOCATION_TYPES[number]["value"];
 type SalaryRange = typeof SALARY_RANGE[number];
 
-export const getJobs = async ({
-  limit,
-  location,
-  type,
-  salary,
-}: {
-  limit: number;
+export const getJobs = async (
+  client: SupabaseClientType,
+  {
+    limit,
+    location,
+    type,
+    salary,
+  }: {
+    limit: number;
   location?: LocationType;
   type?: JobType;
   salary?: SalaryRange;
-}) => {
+  }
+) => {
   const baseQuery = client
     .from("jobs")
     .select(
@@ -50,12 +57,15 @@ export const getJobs = async ({
   return data;
 };
 
-export const getJobById = async (jobId: string) => {
-    const { data, error } = await client
-      .from("jobs")
-      .select("*")
-      .eq("job_id", Number(jobId))
-      .single();
-    if (error) throw error;
-    return data;
-  };
+export const getJobById = async (
+  client: SupabaseClientType,
+  { jobId }: { jobId: string }
+) => {
+  const { data, error } = await client
+    .from("jobs")
+    .select("*")
+    .eq("job_id", Number(jobId))
+    .single();
+  if (error) throw error;
+  return data;
+};

@@ -4,13 +4,15 @@ import { Button } from "~/common/components/ui/button"; // 공통 버튼 컴포�
 import { Badge } from "~/common/components/ui/badge"; // 공통 뱃지 컴포넌트
 import { getJobById } from "../queries";
 import { DateTime } from "luxon";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = () => {
   return [{ title: "Job Details | wemake" }];
 };
 
-export const loader = async ({ params }: Route.LoaderArgs) => {
-  const job = await getJobById(params.jobId);
+export const loader = async ({ request, params }: Route.LoaderArgs) => {
+  const { client, headers } = makeSSRClient(request);
+  const job = await getJobById(client, { jobId: params.jobId });
   return { job };
 };
 

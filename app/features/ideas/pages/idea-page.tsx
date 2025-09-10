@@ -5,6 +5,7 @@ import { Button } from "~/common/components/ui/button";
 import { getGptIdea } from "../queries";
 import { DateTime } from "luxon";
 import type { Route } from "./+types/idea-page";
+import { makeSSRClient } from "~/supa-client";
 
 // 메타 함수에서 data가 undefined일 수 있으므로 안전하게 구조 분해 할당을 처리합니다.
 // idea 객체가 없을 경우 기본값을 사용하여 에러를 방지합니다.
@@ -20,8 +21,9 @@ export const meta = ({
   ];
 };
 
-export const loader = async ({ params }: Route.LoaderArgs) => {
-  const idea = await getGptIdea(params.ideaId);
+export const loader = async ({ request, params }: Route.LoaderArgs) => {
+  const { client, headers } = makeSSRClient(request);
+  const idea = await getGptIdea(client, { ideaId: params.ideaId });
   return { idea };
 };
 

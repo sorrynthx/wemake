@@ -3,11 +3,13 @@ import { HeroSection } from "~/common/components/hero-section";
 import { TeamCard } from "../components/team-card";
 import type { Route } from "./+types/teams-page";
 import { getTeams } from "../queries";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = () => [{ title: "Teams | wemake" }];
 
-export const loader = async () => {
-  const teams = await getTeams({ limit: 8 });
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const { client, headers } = makeSSRClient(request);
+  const teams = await getTeams(client, { limit: 8 });
   return { teams };
 };
 

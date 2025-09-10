@@ -8,6 +8,7 @@ import {
   getCategoryPages,
   getProductsByCategory,
 } from "../queries";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta = ({ params }: Route.MetaArgs) => {
   return [
@@ -27,12 +28,16 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   if (!success) {
     throw new Response("Invalid category", { status: 400 });
   }
-  const category = await getCategory(data.category);
-  const products = await getProductsByCategory({
+  const { client, headers } = makeSSRClient(request);
+  const category = await getCategory(client, { categoryId: data.category });
+  const products = await getProductsByCategory(client, {
     categoryId: data.category,
     page: Number(page),
   });
-  const totalPages = await getCategoryPages(data.category);
+
+  const totalPages = await getCategoryPages(client, {
+    categoryId: data.category,
+  });
   return { category, products, totalPages };
 };
 

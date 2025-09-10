@@ -7,6 +7,7 @@ import ProductPagination from "~/common/components/product-pagination";
 import { Input } from "~/common/components/ui/input";
 import { Button } from "~/common/components/ui/button";
 import { getProductsBySearch, getPagesBySearch } from "../queries";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = () => {
   return [
@@ -31,11 +32,12 @@ export async function loader({ request }: Route.LoaderArgs) {
   if (parsedData.query === "") {
     return { products: [], totalPages: 1 };
   }
-  const products = await getProductsBySearch({
+  const { client, headers } = makeSSRClient(request);
+  const products = await getProductsBySearch(client, {
     query: parsedData.query,
     page: parsedData.page,
   });
-  const totalPages = await getPagesBySearch({ query: parsedData.query });
+  const totalPages = await getPagesBySearch(client, { query: parsedData.query });
   return { products, totalPages };
 }
 

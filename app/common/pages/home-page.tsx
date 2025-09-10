@@ -12,6 +12,7 @@ import { getPosts } from "~/features/community/queries";
 import { getGptIdeas } from "~/features/ideas/queries";
 import { getJobs } from "~/features/jobs/queries";
 import { getTeams } from "~/features/teams/queries";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: MetaFunction = () => {
   return [
@@ -25,22 +26,22 @@ export const meta: MetaFunction = () => {
  * - 페이지가 렌더링되기 전에 서버 또는 클라이언트에서 필요한 데이터를 불러오는 함수
  * - 반환한 데이터는 해당 페이지 컴포넌트의 props로 전달되어 사용됨
  */
-export const loader = async () => {
-  const products = await getProductsByDateRange({
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const { client, headers } = makeSSRClient(request);
+  const products = await getProductsByDateRange(client, {
     startDate: DateTime.now().startOf("day"),
     endDate: DateTime.now().endOf("day"),
     limit: 7,
   });
-  const posts = await getPosts({
+  const posts = await getPosts(client, {
     limit: 7,
     sorting: "newest",
   });
-  const ideas = await getGptIdeas({ limit: 7 });
-  const jobs = await getJobs({ limit: 11 });
-  const teams = await getTeams({ limit: 7 });
-  
+  const ideas = await getGptIdeas(client, { limit: 7 });
+  const jobs = await getJobs(client, { limit: 11 });
+  const teams = await getTeams(client, { limit: 7 });
   return { products, posts, ideas, jobs, teams };
-}
+};
 
 export default function HomePage({ loaderData }: Route.ComponentProps) {
   return (

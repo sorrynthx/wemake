@@ -19,14 +19,16 @@ import { Badge } from "~/common/components/ui/badge"; // 배지 컴포넌트
 import { Reply } from "~/features/community/components/reply"; // 댓글용 Reply 컴포넌트
 import { getPostById, getReplies } from "../queries";
 import { DateTime } from "luxon";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = ({ params }) => {
   return [{ title: `${params.postId} | wemake` }];
 };
 
-export const loader = async ({ params }: Route.LoaderArgs) => {
-  const post = await getPostById(params.postId);
-  const replies = await getReplies(params.postId);
+export const loader = async ({ request, params }: Route.LoaderArgs) => {
+  const { client, headers } = makeSSRClient(request);
+  const post = await getPostById(client, { postId: params.postId });
+  const replies = await getReplies(client, { postId: params.postId });
   return { post, replies };
 };
 

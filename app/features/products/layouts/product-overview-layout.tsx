@@ -5,6 +5,7 @@ import { Link, NavLink, Outlet } from "react-router";
 import type { Route } from "./+types/product-overview-layout";
 import { cn } from "~/lib/utils";
 import { getProductById } from "../queries";
+import { makeSSRClient } from "~/supa-client";
 
 // 메타 정보를 반환하는 함수입니다.
 // data가 undefined일 수 있으므로 안전하게 product 정보를 접근합니다.
@@ -19,11 +20,15 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export const loader = async ({
-  params,
-}: Route.LoaderArgs & { params: { productId: string } }) => {
-  const product = await getProductById(params.productId);
-  return { product };
-};
+    request,
+    params,
+  }: Route.LoaderArgs & { params: { productId: string } }) => {
+    const { client, headers } = makeSSRClient(request);
+    const product = await getProductById(client, {
+      productId: params.productId,
+    });
+    return { product };
+  };
 
 export default function ProductOverviewLayout({
   loaderData,

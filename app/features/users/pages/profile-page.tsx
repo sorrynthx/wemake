@@ -2,12 +2,16 @@ import { useOutletContext } from "react-router";
 
 import client from "~/supa-client";
 import type { Route } from "./+types/profile-page";
+import { makeSSRClient } from "~/supa-client";
 
-export const loader = async ({ params }: Route.LoaderArgs) => {
+export const loader = async ({ request, params }: Route.LoaderArgs) => {
+  const { client, headers } = makeSSRClient(request);
+  // URL 인코딩된 username을 디코딩
+  const decodedUsername = decodeURIComponent(params.username);
   await client.rpc("track_event", {
     event_type: "profile_view",
     event_data: {
-      username: params.username,
+      username: decodedUsername,
     },
   });
   return null;

@@ -5,6 +5,7 @@ import { Button } from "~/common/components/ui/button";
 import { Link } from "react-router";
 import { DateTime } from "luxon";
 import { getProductsByDateRange } from "~/features/products/queries";
+import { makeSSRClient } from "~/supa-client";
 
 export const meta: Route.MetaFunction = () => {
   return [
@@ -18,26 +19,27 @@ export const meta: Route.MetaFunction = () => {
  * - 각 기간(일/주/월/년)별 인기 제품을 실제 DB에서 조회
  * - HomePage의 loader와 동일하게 getProductsByDateRange 유틸을 사용
  */
-export const loader = async () => {
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const { client, headers } = makeSSRClient(request);
   const now = DateTime.now();
 
   const [dailyProducts, weeklyProducts, monthlyProducts, yearlyProducts] = await Promise.all([
-    getProductsByDateRange({
+    getProductsByDateRange(client, {
       startDate: now.startOf("day"),
       endDate: now.endOf("day"),
       limit: 7,
     }),
-    getProductsByDateRange({
+    getProductsByDateRange(client, {
       startDate: now.startOf("week"),
       endDate: now.endOf("week"),
       limit: 7,
     }),
-    getProductsByDateRange({
+    getProductsByDateRange(client, {
       startDate: now.startOf("month"),
       endDate: now.endOf("month"),
       limit: 7,
     }),
-    getProductsByDateRange({
+    getProductsByDateRange(client, {
       startDate: now.startOf("year"),
       endDate: now.endOf("year"),
       limit: 7,

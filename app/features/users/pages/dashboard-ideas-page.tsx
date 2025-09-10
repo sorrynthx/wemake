@@ -26,11 +26,11 @@ export default function DashboardIdeasPage() {
           // 각 아이디어 카드를 렌더링하며, 고유 key와 아이디어 ID를 인덱스를 기반으로 지정합니다.
           <IdeaCard
             key={`ideaId-${index}`}
-            ideaId={`ideaId-${index}`}
+            id={index}
             title="A startup that creates an AI-powered generated personal trainer, delivering customized fitness recommendations and tracking of progress using a mobile app to track workouts and progress as well as a website to manage the business."
-            views={123}
-            timeAgo="12 hours ago"
-            likes={12}
+            viewsCount={123}
+            postedAt="12 hours ago"
+            likesCount={12}
           />
         ))}
       </div>

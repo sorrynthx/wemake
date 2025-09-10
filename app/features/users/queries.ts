@@ -1,7 +1,14 @@
-import client from "~/supa-client";
+import pkg from "@supabase/supabase-js";
+const { SupabaseClient } = pkg;
+import type { Database } from "~/supa-client";
 import { productListSelect } from "../products/queries";
 
-export const getUserProfile = async (username: string) => {
+type SupabaseClientType = InstanceType<typeof SupabaseClient<Database>>;
+
+export const getUserProfile = async (
+  client: SupabaseClientType,
+  { username }: { username: string }
+) => {
   const { data, error } = await client
     .from("profiles")
     .select(
@@ -23,7 +30,32 @@ export const getUserProfile = async (username: string) => {
   return data;
 };
 
-export const getUserProducts = async (username: string) => {
+export const getUserById = async (
+  client: SupabaseClientType,
+  { id }: { id: string }
+) => {
+  const { data, error } = await client
+    .from("profiles")
+    .select(
+      `
+        profile_id,
+        name,
+        username,
+        avatar 
+        `
+    )
+    .eq("profile_id", id)
+    .single();
+  if (error) {
+    throw error;
+  }
+  return data;
+};
+
+export const getUserProducts = async (
+  client: SupabaseClientType,
+  { username }: { username: string }
+) => {
   const { data, error } = await client
     .from("products")
     .select(
@@ -41,7 +73,10 @@ export const getUserProducts = async (username: string) => {
   return data;
 };
 
-export const getUserPosts = async (username: string) => {
+export const getUserPosts = async (
+  client: SupabaseClientType,
+  { username }: { username: string }
+) => {
   const { data, error } = await client
     .from("community_post_list_view")
     .select("*")
