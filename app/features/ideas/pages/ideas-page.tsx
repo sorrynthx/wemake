@@ -1,6 +1,6 @@
 import type { Route } from "./+types/ideas-page";
 import { IdeaCard } from "../components/idea-card";
-import { HeroSection } from "~/common/components/hero-section";
+import { Hero } from "~/common/components/hero";
 import { getGptIdeas } from "../queries";
 import { makeSSRClient } from "~/supa-client";
 
@@ -20,7 +20,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 export default function IdeasPage({ loaderData }: Route.ComponentProps) {
   return (
     <div className="space-y-20">
-      <HeroSection title="IdeasGPT" subtitle="Find ideas for your next project" />
+      <Hero title="IdeasGPT" subtitle="Find ideas for your next project" />
       <div className="grid grid-cols-4 gap-4">
         {loaderData.ideas.map((idea) => (
           <IdeaCard

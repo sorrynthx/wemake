@@ -68,10 +68,15 @@ export const getPostById = async (
   client: SupabaseClientType,
   { postId }: { postId: string }
 ) => {
+  const numericPostId = Number(postId);
+  if (isNaN(numericPostId)) {
+    throw new Error(`Invalid postId: ${postId} is not a valid number`);
+  }
+  
   const { data, error } = await client
     .from("community_post_detail")
     .select("*")
-    .eq("post_id", Number(postId))
+    .eq("post_id", numericPostId)
     .single();
   if (error) throw error;
   return data;
@@ -81,6 +86,11 @@ export const getReplies = async (
   client: SupabaseClientType,
   { postId }: { postId: string }
 ) => {
+  const numericPostId = Number(postId);
+  if (isNaN(numericPostId)) {
+    throw new Error(`Invalid postId: ${postId} is not a valid number`);
+  }
+  
   const replyQuery = `
     post_reply_id,
     reply,
@@ -101,7 +111,8 @@ export const getReplies = async (
       )
       `
     )
-    .eq("post_id", Number(postId));
+    .eq("post_id", numericPostId)
+    .order("created_at", { ascending: false });
   if (error) throw error;
   return data;
 };

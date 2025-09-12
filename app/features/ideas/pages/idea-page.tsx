@@ -1,11 +1,15 @@
 import { DotIcon, HeartIcon } from "lucide-react";
 import { EyeIcon } from "lucide-react";
-import { HeroSection } from "~/common/components/hero-section";
+import { Hero } from "~/common/components/hero";
 import { Button } from "~/common/components/ui/button";
 import { getGptIdea } from "../queries";
 import { DateTime } from "luxon";
 import type { Route } from "./+types/idea-page";
 import { makeSSRClient } from "~/supa-client";
+import { getLoggedInUserId } from "~/features/users/queries";
+import { Form, redirect } from "react-router";
+import { claimIdea } from "../mutations";
+
 
 // 메타 함수에서 data가 undefined일 수 있으므로 안전하게 구조 분해 할당을 처리합니다.
 // idea 객체가 없을 경우 기본값을 사용하여 에러를 방지합니다.
@@ -22,15 +26,29 @@ export const meta = ({
 };
 
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
-  const { client, headers } = makeSSRClient(request);
+  const { client } = makeSSRClient(request);
   const idea = await getGptIdea(client, { ideaId: params.ideaId });
+  if (idea.is_claimed) {
+    throw redirect(`/ideas`);
+  }
   return { idea };
+};
+
+export const action = async ({ request, params }: Route.ActionArgs) => {
+  const { client } = makeSSRClient(request);
+  const userId = await getLoggedInUserId(client);
+  const idea = await getGptIdea(client, { ideaId: params.ideaId });
+  if (idea.is_claimed) {
+    return { ok: false };
+  }
+  await claimIdea(client, { ideaId: params.ideaId, userId });
+  return redirect(`/my/dashboard/ideas`);
 };
 
 export default function IdeaPage({ loaderData }: Route.ComponentProps) {
   return (
-    <div className="">
-      <HeroSection title={`Idea #${loaderData.idea.gpt_idea_id}`} />
+    <div>
+      <Hero title={`Idea #${loaderData.idea.gpt_idea_id}`} />
       <div className="max-w-screen-sm mx-auto flex flex-col items-center gap-10">
         <p className="italic text-center">"{loaderData.idea.idea}"</p>
         <div className="flex items-center text-sm">
@@ -48,7 +66,11 @@ export default function IdeaPage({ loaderData }: Route.ComponentProps) {
             <span>{loaderData.idea.likes}</span>
           </Button>
         </div>
-        <Button size="lg">Claim idea now &rarr;</Button>
+        {loaderData.idea.is_claimed ? null : (
+          <Form method="post">
+            <Button size="lg">Claim idea</Button>
+          </Form>
+        )}
       </div>
     </div>
   );

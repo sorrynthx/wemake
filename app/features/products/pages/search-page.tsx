@@ -1,7 +1,7 @@
 import z from "zod"; // 데이터 검증을 위한 스키마 라이브러리
 import type { Route } from "./+types/search-page";
 import { data, Form } from "react-router";
-import { HeroSection } from "~/common/components/hero-section";
+import { Hero } from "~/common/components/hero";
 import { ProductCard } from "../components/product-card";
 import ProductPagination from "~/common/components/product-pagination";
 import { Input } from "~/common/components/ui/input";
@@ -44,7 +44,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 export default function SearchPage({ loaderData }: Route.ComponentProps) {
   return (
     <div className="space-y-10">
-      <HeroSection
+      <Hero
         title="Search"
         subtitle="Search for products by title or description"
       />

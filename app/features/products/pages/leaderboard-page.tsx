@@ -1,5 +1,5 @@
 import type { Route } from "./+types/leaderboard-page";
-import { HeroSection } from "../../../common/components/hero-section";
+import { Hero } from "../../../common/components/hero";
 import { ProductCard } from "../components/product-card";
 import { Button } from "~/common/components/ui/button";
 import { Link } from "react-router";
@@ -54,7 +54,7 @@ export default function LeaderboardPage({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="space-y-20">
-      <HeroSection
+      <Hero
         title="Leaderboards"
         subtitle="The most popular products on wemake"
       />

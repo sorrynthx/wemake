@@ -14,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "~/common/components/ui/card";
-import { HeroSection } from "~/common/components/hero-section";
+import { Hero } from "~/common/components/hero";
 import { getTeamById } from "../queries";
 import { makeSSRClient } from "~/supa-client";
 
@@ -31,7 +31,7 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
 export default function TeamPage({ loaderData }: Route.ComponentProps) {
   return (
     <div className="space-y-20">
-      <HeroSection title={`Join ${loaderData.team.team_leader.name}'s team`} />
+      <Hero title={`Join ${loaderData.team.team_leader.name}'s team`} />
       <div className="grid grid-cols-6 gap-40 items-start">
         <div className="col-span-4 grid grid-cols-4 gap-5">
           {[

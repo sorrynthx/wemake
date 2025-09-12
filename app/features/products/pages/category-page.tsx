@@ -1,4 +1,4 @@
-import { HeroSection } from "~/common/components/hero-section";
+import { Hero } from "~/common/components/hero";
 import type { Route } from "./+types/category-page";
 import ProductPagination from "~/common/components/product-pagination";
 import { ProductCard } from "../components/product-card";
@@ -44,7 +44,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 export default function CategoryPage({ loaderData }: Route.ComponentProps) {
   return (
     <div className="space-y-10">
-      <HeroSection
+      <Hero
         title={loaderData.category.name}
         subtitle={loaderData.category.description}
       />

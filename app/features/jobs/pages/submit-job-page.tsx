@@ -5,31 +5,75 @@ import type { Route } from "./+types/submit-job-page";
 import { JOB_TYPES, LOCATION_TYPES, SALARY_RANGE } from "../constants";
 import SelectPair from "~/common/components/select-pair";
 import InputPair from "~/common/components/input-pair";
-import { Form } from "react-router";
-import { HeroSection } from "~/common/components/hero-section";
+import { Form, redirect } from "react-router";
+import { Hero } from "~/common/components/hero";
+import { makeSSRClient } from "~/supa-client";
+import { getLoggedInUserId } from "~/features/users/queries";
+import { z } from "zod";
+import { jobTypes } from "../schema";
+import { createJob } from "../mutations";
 
-// 페이지 메타데이터(title, description) 설정
 export const meta: Route.MetaFunction = () => {
   return [
-    { title: "Submit Job - wemake" },
-    { name: "description", content: "Submit a new job posting to the community" },
+    { title: "Post a Job | wemake" },
+    {
+      name: "description",
+      content: "Reach out to the best developers in the world",
+    },
   ];
-}
+};
 
-// 잡 제출 폼을 렌더링하는 메인 컴포넌트입니다.
-export default function SubmitJobPage() {
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const { client } = makeSSRClient(request);
+  await getLoggedInUserId(client);
+};
+
+export const formSchema = z.object({
+  position: z.string().max(40),
+  overview: z.string().max(400),
+  responsibilities: z.string().max(400),
+  qualifications: z.string().max(400),
+  benefits: z.string().max(400),
+  skills: z.string().max(400),
+  companyName: z.string().max(40),
+  companyLogoUrl: z.string().max(40),
+  companyLocation: z.string().max(40),
+  applyUrl: z.string().max(40),
+  jobType: z.enum(JOB_TYPES.map((type) => type.value) as [string, ...string[]]),
+  jobLocation: z.enum(
+    LOCATION_TYPES.map((location) => location.value) as [string, ...string[]]
+  ),
+  salaryRange: z.enum(SALARY_RANGE),
+});
+
+export const action = async ({ request }: Route.ActionArgs) => {
+  const { client } = makeSSRClient(request);
+  await getLoggedInUserId(client);
+  const formData = await request.formData();
+  const { success, data, error } = formSchema.safeParse(
+    Object.fromEntries(formData)
+  );
+  if (!success) {
+    return {
+      fieldErrors: error.flatten().fieldErrors,
+    };
+  }
+  const { job_id } = await createJob(client, data);
+  return redirect(`/jobs/${job_id}`);
+};
+
+export default function SubmitJobPage({ actionData }: Route.ComponentProps) {
   return (
     <div>
-      {/* 페이지 헤더와 서브타이틀을 보여줍니다 */}
-      <HeroSection
+      <Hero
         title="Post a Job"
         subtitle="Reach out to the best developers in the world"
       />
-      {/* React Router Form을 사용하는 잡 포스팅 폼입니다 */}
-      <Form className="max-w-screen-2xl flex flex-col items-center gap-10 mx-auto">
-        {/* 입력 필드를 3열 그리드로 배치합니다 */}
+      <Form
+        className="max-w-screen-2xl flex flex-col items-center gap-10 mx-auto"
+        method="post"
+      >
         <div className="grid grid-cols-3 w-full gap-10">
-          {/* 포지션 입력 필드 */}
           <InputPair
             label="Position"
             description="(40 characters max)"
@@ -38,9 +82,11 @@ export default function SubmitJobPage() {
             type="text"
             id="position"
             required
-            placeholder="i.e Senior React Developer"
+            defaultValue="Senior React Developer"
           />
-          {/* 개요(Overview) 입력 필드 */}
+          {actionData && "fieldErrors" in actionData && (
+            <p className="text-red-500">{actionData.fieldErrors.position}</p>
+          )}
           <InputPair
             id="overview"
             label="Overview"
@@ -49,10 +95,12 @@ export default function SubmitJobPage() {
             maxLength={400}
             type="text"
             required
-            placeholder="i.e We are looking for a Senior React Developer"
+            defaultValue="We are looking for a Senior React Developer"
             textArea
           />
-          {/* 주요 업무(Responsibilities) 입력 필드 */}
+          {actionData && "fieldErrors" in actionData && (
+            <p className="text-red-500">{actionData.fieldErrors.overview}</p>
+          )}
           <InputPair
             id="responsibilities"
             label="Responsibilities"
@@ -61,10 +109,14 @@ export default function SubmitJobPage() {
             maxLength={400}
             type="text"
             required
-            placeholder="i.e Implement new features, Maintain code quality, etc."
+            defaultValue="Implement new features, Maintain code quality, etc."
             textArea
           />
-          {/* 자격 요건(Qualifications) 입력 필드 */}
+          {actionData && "fieldErrors" in actionData && (
+            <p className="text-red-500">
+              {actionData.fieldErrors.responsibilities}
+            </p>
+          )}
           <InputPair
             id="qualifications"
             label="Qualifications"
@@ -73,10 +125,14 @@ export default function SubmitJobPage() {
             maxLength={400}
             type="text"
             required
-            placeholder="i.e 3+ years of experience, Strong TypeScript skills, etc."
+            defaultValue="3+ years of experience, Strong TypeScript skills, etc."
             textArea
           />
-          {/* 복지(Benefits) 입력 필드 */}
+          {actionData && "fieldErrors" in actionData && (
+            <p className="text-red-500">
+              {actionData.fieldErrors.qualifications}
+            </p>
+          )}
           <InputPair
             id="benefits"
             label="Benefits"
@@ -85,10 +141,12 @@ export default function SubmitJobPage() {
             maxLength={400}
             type="text"
             required
-            placeholder="i.e Flexible working hours, Health insurance, etc."
+            defaultValue="Flexible working hours, Health insurance, etc."
             textArea
           />
-          {/* 필요 기술(Skills) 입력 필드 */}
+          {actionData && "fieldErrors" in actionData && (
+            <p className="text-red-500">{actionData.fieldErrors.benefits}</p>
+          )}
           <InputPair
             id="skills"
             label="Skills"
@@ -97,10 +155,12 @@ export default function SubmitJobPage() {
             maxLength={400}
             type="text"
             required
-            placeholder="i.e React, TypeScript, etc."
+            defaultValue="React, TypeScript, etc."
             textArea
           />
-          {/* 회사 정보 입력 필드: 회사명 */}
+          {actionData && "fieldErrors" in actionData && (
+            <p className="text-red-500">{actionData.fieldErrors.skills}</p>
+          )}
           <InputPair
             id="companyName"
             label="Company Name"
@@ -109,9 +169,11 @@ export default function SubmitJobPage() {
             maxLength={40}
             type="text"
             required
-            placeholder="i.e wemake"
+            defaultValue="wemake"
           />
-          {/* 회사 정보 입력 필드: 로고 URL */}
+          {actionData && "fieldErrors" in actionData && (
+            <p className="text-red-500">{actionData.fieldErrors.companyName}</p>
+          )}
           <InputPair
             id="companyLogoUrl"
             label="Company Logo URL"
@@ -119,9 +181,13 @@ export default function SubmitJobPage() {
             name="companyLogoUrl"
             type="url"
             required
-            placeholder="i.e https://wemake.services/logo.png"
+            defaultValue="https://wemake.services/logo.png"
           />
-          {/* 회사 정보 입력 필드: 위치 */}
+          {actionData && "fieldErrors" in actionData && (
+            <p className="text-red-500">
+              {actionData.fieldErrors.companyLogoUrl}
+            </p>
+          )}
           <InputPair
             id="companyLocation"
             label="Company Location"
@@ -130,9 +196,13 @@ export default function SubmitJobPage() {
             maxLength={40}
             type="text"
             required
-            placeholder="i.e Remote, New York, etc."
+            defaultValue="Remote, New York, etc."
           />
-          {/* 지원 URL 입력 필드 */}
+          {actionData && "fieldErrors" in actionData && (
+            <p className="text-red-500">
+              {actionData.fieldErrors.companyLocation}
+            </p>
+          )}
           <InputPair
             id="applyUrl"
             label="Apply URL"
@@ -141,9 +211,11 @@ export default function SubmitJobPage() {
             maxLength={40}
             type="url"
             required
-            placeholder="i.e https://wemake.services/apply"
+            defaultValue="https://wemake.services/apply"
           />
-          {/* 잡 타입 선택 필드 */}
+          {actionData && "fieldErrors" in actionData && (
+            <p className="text-red-500">{actionData.fieldErrors.applyUrl}</p>
+          )}
           <SelectPair
             label="Job Type"
             description="Select the type of job"
@@ -155,7 +227,9 @@ export default function SubmitJobPage() {
               value: type.value,
             }))}
           />
-          {/* 잡 위치 선택 필드 */}
+          {actionData && "fieldErrors" in actionData && (
+            <p className="text-red-500">{actionData.fieldErrors.jobType}</p>
+          )}
           <SelectPair
             label="Job Location"
             description="Select the location of the job"
@@ -167,7 +241,9 @@ export default function SubmitJobPage() {
               value: location.value,
             }))}
           />
-          {/* 연봉 범위 선택 필드 */}
+          {actionData && "fieldErrors" in actionData && (
+            <p className="text-red-500">{actionData.fieldErrors.jobLocation}</p>
+          )}
           <SelectPair
             label="Salary Range"
             description="Select the salary range of the job"
@@ -179,8 +255,10 @@ export default function SubmitJobPage() {
               value: salary,
             }))}
           />
+          {actionData && "fieldErrors" in actionData && (
+            <p className="text-red-500">{actionData.fieldErrors.salaryRange}</p>
+          )}
         </div>
-        {/* 이 버튼을 누르면 폼이 제출되며, $100가 청구됩니다 */}
         <Button type="submit" className="w-full max-w-sm" size="lg">
           Post job for $100
         </Button>

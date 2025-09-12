@@ -1,4 +1,4 @@
-import { HeroSection } from "~/common/components/hero-section";
+import { Hero } from "~/common/components/hero";
 import type { Route } from "./+types/promote-page";
 import { Form } from "react-router";
 import SelectPair from "~/common/components/select-pair";
@@ -31,8 +31,8 @@ export default function PromotePage() {
   : 0;
   return (
     <div>
-      {/* HeroSection */}
-      <HeroSection 
+      {/* Hero */}
+      <Hero 
         title="Promote Your Product"
         subtitle="Boost your product's visibility!!!"
       />

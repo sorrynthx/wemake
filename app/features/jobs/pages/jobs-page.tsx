@@ -1,4 +1,4 @@
-import { HeroSection } from "~/common/components/hero-section";
+import { Hero } from "~/common/components/hero";
 import type { Route } from "./+types/jobs-page";
 import { JobCard } from "../components/job-card";
 import { Button } from "~/common/components/ui/button";
@@ -64,7 +64,7 @@ export default function JobsPage({ loaderData }: Route.ComponentProps) {
   };
   return (
     <div className="space-y-20">
-      <HeroSection title="Jobs" subtitle="Companies looking for makers" />
+      <Hero title="Jobs" subtitle="Companies looking for makers" />
       <div className="grid grid-cols-1 xl:grid-cols-6 gap-20 items-start">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:col-span-4 gap-5">
           {loaderData.jobs.map((job) => (

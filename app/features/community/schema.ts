@@ -36,12 +36,16 @@ export const posts = pgTable("posts", {
   upvotes: bigint({ mode: "number" }).default(0), // 좋아요 수
   created_at: timestamp().notNull().defaultNow(), // 생성 일시
   updated_at: timestamp().notNull().defaultNow(), // 수정 일시
-  topic_id: bigint({ mode: "number" }).references(() => topics.topic_id, {
-    onDelete: "cascade",
-  }), // 소속 토픽 ID
-  profile_id: uuid().references(() => profiles.profile_id, {
-    onDelete: "cascade",
-  }), // 작성자 프로필 ID
+  topic_id: bigint({ mode: "number" })
+    .references(() => topics.topic_id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+  profile_id: uuid()
+    .references(() => profiles.profile_id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
 });
 
 // 게시글 추천(업보트) 정보를 저장하는 테이블

@@ -144,7 +144,7 @@ export default function Navigation({
         },
         {
           name: "Create a Post",
-          to: "/community/create",
+          to: "/community/submit",
           description: "Post a new community discussion",
         },
       ],

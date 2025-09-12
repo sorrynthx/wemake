@@ -32,3 +32,17 @@ export const getGptIdea = async (
   }
   return data;
 };
+
+export const getClaimedIdeas = async (
+  client: SupabaseClientType,
+  { userId }: { userId: string }
+) => {
+  const { data, error } = await client
+    .from("gpt_ideas")
+    .select("gpt_idea_id, claimed_at, idea")
+    .eq("claimed_by", userId);
+  if (error) {
+    throw error;
+  }
+  return data;
+};

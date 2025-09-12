@@ -6,7 +6,7 @@ import {
   BreadcrumbSeparator,
 } from "~/common/components/ui/breadcrumb"; // 네비게이션용 Breadcrumb 컴포넌트
 import type { Route } from "./+types/post-page"; // meta 함수용 Route 타입
-import { Form, Link } from "react-router"; // react-router의 Form, Link 컴포넌트
+import { Form, Link, useOutletContext } from "react-router"; // react-router의 Form, Link 컴포넌트
 import { ChevronUpIcon, DotIcon } from "lucide-react"; // 페이지에 사용되는 아이콘
 import { Button } from "~/common/components/ui/button"; // 버튼 컴포넌트
 import { Textarea } from "~/common/components/ui/textarea"; // 텍스트 영역 컴포넌트
@@ -17,12 +17,23 @@ import {
 } from "~/common/components/ui/avatar"; // 아바타 관련 컴포넌트
 import { Badge } from "~/common/components/ui/badge"; // 배지 컴포넌트
 import { Reply } from "~/features/community/components/reply"; // 댓글용 Reply 컴포넌트
+import { createReply } from "../mutations";
 import { getPostById, getReplies } from "../queries";
 import { DateTime } from "luxon";
 import { makeSSRClient } from "~/supa-client";
+import { getLoggedInUserId } from "~/features/users/queries";
+import { z } from "zod";
+import { useEffect, useRef } from "react";
 
-export const meta: Route.MetaFunction = ({ params }) => {
-  return [{ title: `${params.postId} | wemake` }];
+export const meta: Route.MetaFunction = ({ data }) => {
+  // data가 undefined일 수 있으므로 안전하게 처리
+  // 게시글 데이터가 존재할 때만 타이틀을 동적으로 생성, 없으면 기본 타이틀 반환
+  if (data && data.post) {
+    // 게시글 제목과 토픽명을 포함한 페이지 타이틀 생성
+    return [{ title: `${data.post.title} on ${data.post.topic_name} | wemake` }];
+  }
+  // 게시글 데이터가 없을 경우 기본 타이틀 반환
+  return [{ title: "Post | wemake" }];
 };
 
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
@@ -32,7 +43,51 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
   return { post, replies };
 };
 
-export default function PostPage({ loaderData }: Route.ComponentProps) {
+const formSchema = z.object({
+  reply: z.string().min(1),
+  topLevelId: z.coerce.number().optional(),
+});
+
+export const action = async ({ request, params }: Route.ActionArgs) => {
+  const { client } = makeSSRClient(request);
+  const userId = await getLoggedInUserId(client);
+  const formData = await request.formData();
+  const { success, error, data } = formSchema.safeParse(
+    Object.fromEntries(formData)
+  );
+  if (!success) {
+    return {
+      formErrors: error.flatten().fieldErrors,
+    };
+  }
+  const { reply, topLevelId } = data;
+  await createReply(client, {
+    postId: params.postId,
+    reply,
+    userId,
+    topLevelId,
+  });
+  return {
+    ok: true,
+  };
+};
+
+export default function PostPage({
+  loaderData,
+  actionData,
+}: Route.ComponentProps) {
+  const { isLoggedIn, name, username, avatar } = useOutletContext<{
+    isLoggedIn: boolean;
+    name?: string;
+    username?: string;
+    avatar?: string;
+  }>();
+  const formRef = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    if (actionData?.ok) {
+      formRef.current?.reset();
+    }
+  }, [actionData?.ok]);
   return (
     <div className="space-y-10">
       <Breadcrumb>
@@ -72,7 +127,9 @@ export default function PostPage({ loaderData }: Route.ComponentProps) {
                   <span>{loaderData.post.author_name}</span>
                   <DotIcon className="size-5" />
                   <span>
-                    {DateTime.fromISO(loaderData.post.created_at).toRelative()}
+                    {DateTime.fromISO(loaderData.post.created_at, {
+                      zone: "utc",
+                    }).toRelative()}
                   </span>
                   <DotIcon className="size-5" />
                   <span>{loaderData.post.replies} replies</span>
@@ -81,20 +138,27 @@ export default function PostPage({ loaderData }: Route.ComponentProps) {
                   {loaderData.post.content}
                 </p>
               </div>
-              <Form className="flex items-start gap-5 w-3/4">
-                <Avatar className="size-14">
-                  <AvatarFallback>S</AvatarFallback>
-                  <AvatarImage src="https://github.com/sorrynthx.png" />
-                </Avatar>
-                <div className="flex flex-col gap-5 items-end w-full">
-                  <Textarea
-                    placeholder="Write a reply"
-                    className="w-full resize-none"
-                    rows={5}
-                  />
-                  <Button>Reply</Button>
-                </div>
-              </Form>
+              {isLoggedIn ? (
+                <Form
+                  ref={formRef}
+                  className="flex items-start gap-5 w-3/4"
+                  method="post"
+                >
+                  <Avatar className="size-14">
+                    <AvatarFallback>{name?.[0]}</AvatarFallback>
+                    <AvatarImage src={avatar} />
+                  </Avatar>
+                  <div className="flex flex-col gap-5 items-end w-full">
+                    <Textarea
+                      name="reply"
+                      placeholder="Write a reply"
+                      className="w-full resize-none"
+                      rows={5}
+                    />
+                    <Button>Reply</Button>
+                  </div>
+                </Form>
+              ) : null}
               <div className="space-y-10">
                 <h4 className="font-semibold">
                   {loaderData.post.replies} Replies
@@ -102,11 +166,14 @@ export default function PostPage({ loaderData }: Route.ComponentProps) {
                 <div className="flex flex-col gap-5">
                   {loaderData.replies.map((reply) => (
                     <Reply
-                      username={reply.user.name}
+                      key={reply.user.name}
+                      name={reply.user.name}
+                      username={reply.user.username}
                       avatarUrl={reply.user.avatar}
                       content={reply.reply}
                       timestamp={reply.created_at}
                       topLevel={true}
+                      topLevelId={reply.post_reply_id}
                       replies={reply.post_replies}
                     />
                   ))}
@@ -135,7 +202,9 @@ export default function PostPage({ loaderData }: Route.ComponentProps) {
           <div className="gap-2 text-sm flex flex-col">
             <span>
               🎂 Joined{" "}
-              {DateTime.fromISO(loaderData.post.author_created_at).toRelative()}{" "}
+              {DateTime.fromISO(loaderData.post.author_created_at, {
+                zone: "utc",
+              }).toRelative()}{" "}
               ago
             </span>
             <span>🚀 Launched {loaderData.post.products} products</span>

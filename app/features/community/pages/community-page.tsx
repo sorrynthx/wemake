@@ -13,7 +13,7 @@ import { PERIOD_OPTIONS, SORT_OPTIONS } from "../constants";
 import { Input } from "~/common/components/ui/input";
 import { PostCard } from "../components/post-card";
 import { getPosts, getTopics } from "../queries";
-import { HeroSection } from "~/common/components/hero-section";
+import { Hero } from "~/common/components/hero";
 import { Suspense } from "react";
 import { z } from "zod";
 import { makeSSRClient } from "~/supa-client";
@@ -45,10 +45,9 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       },
       { status: 400 }
     );
-  
   }
-  const { client, headers } = makeSSRClient(request);
 
+  const { client, headers } = makeSSRClient(request);
   const [topics, posts] = await Promise.all([
     getTopics(client),
     getPosts(client, {
@@ -68,7 +67,7 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
   const period = searchParams.get("period") || "all";
   return (
     <div className="space-y-20">
-      <HeroSection
+      <Hero
         title="Community"
         subtitle="Ask questions, share ideas, and connect with other developers"
       />
@@ -138,17 +137,19 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
           </div>
           <div className="space-y-5">
             {loaderData.posts.map((post) => (
-              <PostCard
-                key={post.post_id}
-                id={post.post_id}
-                title={post.title}
-                author={post.author}
-                authorAvatarUrl={post.author_avatar}
-                category={post.topic}
-                postedAt={post.created_at}
-                votesCount={post.upvotes}
-                expanded
-              />
+              
+                <PostCard
+                  key={post.post_id}
+                  id={post.post_id}
+                  title={post.title}
+                  author={post.author}
+                  authorAvatarUrl={post.author_avatar}
+                  category={post.topic}
+                  postedAt={post.created_at}
+                  votesCount={post.upvotes}
+                  expanded
+                />
+              
             ))}
           </div>
         </div>
@@ -157,7 +158,7 @@ export default function CommunityPage({ loaderData }: Route.ComponentProps) {
             Topics
           </span>
           <div className="flex flex-col gap-2 items-start">
-            {loaderData.topics.map((topic) => (
+            {loaderData.topics.map((topic, index) => (
               <Button
                 asChild
                 variant={"link"}

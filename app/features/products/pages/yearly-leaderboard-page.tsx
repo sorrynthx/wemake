@@ -2,7 +2,7 @@ import { DateTime } from "luxon"; // 날짜 관련 라이브러리
 import type { Route } from "./+types/yearly-leaderboard-page";
 import { data, isRouteErrorResponse, Link } from "react-router";
 import { z } from 'zod'; // 파라미터 유효성 체크 라이브러리
-import { HeroSection } from "~/common/components/hero-section";
+import { Hero } from "~/common/components/hero";
 import { ProductCard } from "../components/product-card";
 import { Button } from "~/common/components/ui/button";
 import ProductPagination from "~/common/components/product-pagination";
@@ -93,7 +93,7 @@ export default function YearlyLeaderboardPage({
   const isToday = urlDate.equals(DateTime.now().startOf("year"));
   return (
     <div className="space-y-10">
-      <HeroSection
+      <Hero
         title={`Best of ${urlDate.toLocaleString({
           year: "numeric",
         })}`}

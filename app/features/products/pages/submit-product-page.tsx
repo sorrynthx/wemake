@@ -1,4 +1,4 @@
-import { HeroSection } from "~/common/components/hero-section";
+import { Hero } from "~/common/components/hero";
 
 import { Form } from "react-router";
 import { Label } from "~/common/components/ui/label";
@@ -55,7 +55,7 @@ export default function SubmitPage({ loaderData }: Route.ComponentProps) {
   return (
     <div>
       {/* 페이지 상단 히어로 섹션 */}
-      <HeroSection
+      <Hero
         title="Submit Your Product"
         subtitle="Share your product with the world 🌎"
       />

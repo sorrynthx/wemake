@@ -1,4 +1,4 @@
-import { HeroSection } from "~/common/components/hero-section";
+import { Hero } from "~/common/components/hero";
 import type { Route } from "./+types/categories-page";
 import { CategoryCard } from "../components/category-card";
 import { getCategories } from "../queries";
@@ -18,7 +18,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 export default function CategoriesPage({ loaderData }: Route.ComponentProps) {
   return (
     <div className="space-y-10">
-      <HeroSection title="Categories" subtitle="Browse products by category" />
+      <Hero title="Categories" subtitle="Browse products by category" />
       <div className="grid grid-cols-4 gap-10">
         {loaderData.categories.map((category) => (
           <CategoryCard
